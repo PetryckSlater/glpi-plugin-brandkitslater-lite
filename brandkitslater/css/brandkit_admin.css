@@ -1,7 +1,25 @@
 /* =============================================================================
-   BrandKitSlater - Estilização do Painel de Administração / Studio
+   BrandKitSlater - Estilização do Studio & Painel de Administração
+   Design Language: Modern SaaS Studio (Linear & Apple HIG inspired)
+   Adheres to Modern Web Guidance: Custom Sliders, Form Controls, and A11y
    ============================================================================= */
 
+:root {
+    --bks-primary: #003876;
+    --bks-primary-hover: #004ba0;
+    --bks-primary-glow: rgba(0, 56, 118, 0.18);
+    --bks-surface-card: #ffffff;
+    --bks-surface-subtle: #f8fafc;
+    --bks-border-subtle: #e2e8f0;
+    --bks-border-focus: #3b82f6;
+    --bks-text-strong: #0f172a;
+    --bks-text-muted: #64748b;
+    --bks-ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+    --bks-shadow-card: 0 4px 20px -2px rgba(15, 23, 42, 0.05), 0 0 0 1px rgba(226, 232, 240, 0.85);
+    --bks-shadow-elevated: 0 20px 40px -12px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(226, 232, 240, 0.9);
+}
+
+/* Container do Studio com duas colunas */
 .brandkit-studio-wrapper {
     display: flex;
     gap: 2rem;
@@ -25,16 +43,35 @@
     min-width: 0;
     position: sticky;
     top: 20px;
+    z-index: 20;
 }
 
-/* Cartões e Abas */
+/* Cartões do Studio (Linear/Raycast Elevated Surface) */
 .brandkit-card {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
+    background: var(--bks-surface-card);
+    border: 1px solid var(--bks-border-subtle);
     border-radius: 16px;
-    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--bks-shadow-card);
     padding: 1.75rem;
     margin-bottom: 1.5rem;
+    transition: box-shadow 0.25s var(--bks-ease-spring), border-color 0.25s var(--bks-ease-spring);
+    position: relative;
+    overflow: hidden;
+}
+
+.brandkit-card:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 8px 30px -4px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(203, 213, 225, 0.9);
+}
+
+.brandkit-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
 }
 
 .brandkit-header {
@@ -43,7 +80,7 @@
     justify-content: space-between;
     margin-bottom: 1.5rem;
     padding-bottom: 1rem;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid var(--bks-border-subtle);
 }
 
 /* Seletor Visual de Posição (Radio Cards) */
@@ -54,25 +91,35 @@
     margin-top: 0.5rem;
 }
 
+@media (max-width: 640px) {
+    .brandkit-position-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 .brandkit-position-card {
-    border: 2px solid #e2e8f0;
+    border: 1.5px solid var(--bks-border-subtle);
     border-radius: 12px;
     padding: 1rem;
     text-align: center;
     cursor: pointer;
-    transition: all 0.2s ease;
-    background: #f8fafc;
+    transition: all 0.25s var(--bks-ease-spring);
+    background: var(--bks-surface-subtle);
+    position: relative;
 }
 
 .brandkit-position-card:hover {
     border-color: #94a3b8;
     background: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px -2px rgba(15, 23, 42, 0.08);
 }
 
 .brandkit-position-card.active {
-    border-color: #003876;
-    background: #eff6ff;
-    box-shadow: 0 0 0 3px rgba(0, 56, 118, 0.15);
+    border-color: var(--bks-primary);
+    background: #f0f7ff;
+    box-shadow: 0 0 0 3px var(--bks-primary-glow), 0 4px 12px -2px rgba(0, 56, 118, 0.15);
+    transform: translateY(-1px);
 }
 
 .brandkit-pos-icon {
@@ -83,13 +130,24 @@
     display: flex;
     align-items: center;
     padding: 6px;
+    transition: background 0.2s ease;
+}
+
+.brandkit-position-card.active .brandkit-pos-icon {
+    background: #bfdbfe;
 }
 
 .brandkit-pos-box {
     width: 28px;
     height: 36px;
-    background: #003876;
+    background: var(--bks-primary);
     border-radius: 4px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    transition: transform 0.2s ease;
+}
+
+.brandkit-position-card:hover .brandkit-pos-box {
+    transform: scale(1.05);
 }
 
 /* Seletor Visual de Formatos de Logo (Shape Cards) */
@@ -107,13 +165,13 @@
 }
 
 .brandkit-shape-card {
-    border: 2px solid #e2e8f0;
+    border: 1.5px solid var(--bks-border-subtle);
     border-radius: 12px;
     padding: 0.85rem 0.5rem;
     text-align: center;
     cursor: pointer;
-    transition: all 0.2s ease;
-    background: #f8fafc;
+    transition: all 0.25s var(--bks-ease-spring);
+    background: var(--bks-surface-subtle);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -123,29 +181,31 @@
 .brandkit-shape-card:hover {
     border-color: #94a3b8;
     background: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px -2px rgba(15, 23, 42, 0.06);
 }
 
 .brandkit-shape-card.active {
-    border-color: #003876;
-    background: #eff6ff;
-    box-shadow: 0 0 0 3px rgba(0, 56, 118, 0.15);
+    border-color: var(--bks-primary);
+    background: #f0f7ff;
+    box-shadow: 0 0 0 3px var(--bks-primary-glow);
 }
 
 .brandkit-shape-icon-demo {
     width: 44px;
     height: 28px;
-    background: #003876;
+    background: var(--bks-primary);
     display: flex;
     align-items: center;
     justify-content: center;
     color: #ffffff;
     font-size: 10px;
     font-weight: 700;
-    transition: all 0.2s ease;
+    transition: all 0.2s var(--bks-ease-spring);
 }
 
 .brandkit-shape-icon-demo.standard {
-    border-radius: 2px;
+    border-radius: 3px;
 }
 
 .brandkit-shape-icon-demo.rounded {
@@ -153,29 +213,32 @@
 }
 
 .brandkit-shape-icon-demo.circle {
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
 }
 
 .brandkit-shape-icon-demo.pill {
     border-radius: 9999px;
-    padding: 0 4px;
+    padding: 0 6px;
 }
 
 .brandkit-shape-icon-demo.bordered {
     border: 2px solid #C0122D;
     background: #ffffff;
-    color: #003876;
+    color: var(--bks-primary);
     border-radius: 8px;
 }
 
 .brandkit-shape-icon-demo.glow {
-    border-radius: 4px;
-    box-shadow: 0 0 10px #0095b7, 0 0 4px #0095b7;
+    border-radius: 6px;
+    box-shadow: 0 0 12px #0095b7, 0 0 4px #0095b7;
 }
 
-/* Sliders Elegantes */
+/* =============================================================================
+   Sliders Customizados de Alta Precisão (Conforme Modern Web Guidance)
+   Usa regras separadas para WebKit e Firefox para prevenir drop da regra inteira
+   ============================================================================= */
 .brandkit-slider-group {
     display: flex;
     align-items: center;
@@ -183,68 +246,198 @@
 }
 
 .brandkit-slider-group input[type="range"] {
+    --slider-track-size: 6px;
+    --slider-thumb-size: 18px;
+    --slider-track-radius: 999px;
+    --slider-thumb-radius: 50%;
+    --slider-track-color: #e2e8f0;
+    --slider-fill-color: var(--bks-primary, #003876);
+    --slider-thumb-color: #ffffff;
+    --slider-direction: to right;
+
+    appearance: none;
+    -webkit-appearance: none;
     flex: 1;
-    accent-color: #003876;
+    inline-size: 100%;
+    block-size: 2rem;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+}
+
+/* WebKit/Blink Track */
+.brandkit-slider-group input[type="range"]::-webkit-slider-runnable-track {
+    block-size: var(--slider-track-size);
+    border: 0;
+    border-radius: var(--slider-track-radius);
+    background: linear-gradient(
+        var(--slider-direction),
+        var(--slider-fill-color) var(--slider-progress, 50%),
+        var(--slider-track-color) var(--slider-progress, 50%)
+    );
+    transition: background 0.15s ease;
+}
+
+/* WebKit/Blink Thumb */
+.brandkit-slider-group input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    inline-size: var(--slider-thumb-size);
+    block-size: var(--slider-thumb-size);
+    margin-block-start: calc((var(--slider-track-size) - var(--slider-thumb-size)) / 2);
+    border: 2px solid var(--slider-fill-color);
+    border-radius: var(--slider-thumb-radius);
+    background: var(--slider-thumb-color);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    transition: transform 0.15s var(--bks-ease-spring), box-shadow 0.15s ease;
+}
+
+.brandkit-slider-group input[type="range"]:hover::-webkit-slider-thumb {
+    transform: scale(1.15);
+    box-shadow: 0 0 0 4px var(--bks-primary-glow), 0 3px 8px rgba(0, 0, 0, 0.25);
+}
+
+.brandkit-slider-group input[type="range"]:active::-webkit-slider-thumb {
+    transform: scale(1.25);
+    background: var(--slider-fill-color);
+}
+
+/* Firefox Track */
+.brandkit-slider-group input[type="range"]::-moz-range-track {
+    block-size: var(--slider-track-size);
+    border: 0;
+    border-radius: var(--slider-track-radius);
+    background: var(--slider-track-color);
+}
+
+.brandkit-slider-group input[type="range"]::-moz-range-progress {
+    block-size: var(--slider-track-size);
+    border-radius: var(--slider-track-radius);
+    background: var(--slider-fill-color);
+}
+
+/* Firefox Thumb */
+.brandkit-slider-group input[type="range"]::-moz-range-thumb {
+    inline-size: var(--slider-thumb-size);
+    block-size: var(--slider-thumb-size);
+    border: 2px solid var(--slider-fill-color);
+    border-radius: var(--slider-thumb-radius);
+    background: var(--slider-thumb-color);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    transition: transform 0.15s var(--bks-ease-spring);
+}
+
+.brandkit-slider-group input[type="range"]:focus-visible {
+    outline: 2px solid var(--bks-primary);
+    outline-offset: 4px;
+    border-radius: 4px;
 }
 
 .brandkit-slider-value {
-    min-width: 55px;
+    min-width: 58px;
     font-weight: 700;
-    font-size: 0.85rem;
-    color: #003876;
-    background: #eff6ff;
-    padding: 4px 8px;
-    border-radius: 6px;
+    font-size: 0.82rem;
+    font-family: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+    color: var(--bks-primary);
+    background: #f0f7ff;
+    padding: 5px 10px;
+    border-radius: 8px;
     text-align: center;
+    border: 1px solid #bfdbfe;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
-/* Moldura do Live Preview */
+/* =============================================================================
+   Moldura do Live Preview Studio (Simulador Multi-Viewport Next-Gen)
+   ============================================================================= */
 .brandkit-preview-frame {
-    border: 1px solid #cbd5e1;
+    border: 1px solid #334155;
     border-radius: 20px;
     overflow: hidden;
-    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.25);
-    background: #0f172a;
-    transition: max-width 0.3s ease;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.1);
+    background: #090d16;
+    transition: max-width 0.35s var(--bks-ease-spring), box-shadow 0.3s ease;
     margin: 0 auto;
 }
 
 .brandkit-preview-toolbar {
-    background: #1e293b;
-    padding: 0.75rem 1rem;
+    background: linear-gradient(180deg, #1e293b 0%, #172033 100%);
+    padding: 0.75rem 1.25rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
     color: #ffffff;
     border-bottom: 1px solid #334155;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 10px;
+}
+
+/* Indicador de contraste WCAG em tempo real */
+.brandkit-contrast-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    color: #34d399;
+    padding: 3px 8px;
+    border-radius: 9999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.brandkit-contrast-badge.warn {
+    background: rgba(245, 158, 11, 0.15);
+    border-color: rgba(245, 158, 11, 0.4);
+    color: #fbbf24;
+}
+
+/* Segmented Control dos Dispositivos */
+.brandkit-device-segmented {
+    display: inline-flex;
+    background: #0f172a;
+    padding: 3px;
+    border-radius: 8px;
+    border: 1px solid #334155;
+    gap: 2px;
 }
 
 .brandkit-device-btn {
     background: transparent;
-    border: 1px solid #475569;
-    color: #cbd5e1;
-    padding: 4px 10px;
+    border: none;
+    color: #94a3b8;
+    padding: 5px 10px;
     border-radius: 6px;
     font-size: 0.75rem;
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: all 0.2s var(--bks-ease-spring);
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 
-.brandkit-device-btn.active, .brandkit-device-btn:hover {
-    background: #003876;
-    border-color: #003876;
+.brandkit-device-btn:hover {
     color: #ffffff;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.brandkit-device-btn.active {
+    background: #3b82f6;
+    color: #ffffff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
 }
 
 /* Abas de Navegação do Preview (Tabs) */
 .brandkit-preview-tabs {
     display: flex;
-    background: #0f172a;
-    padding: 6px 10px 0 10px;
-    border-bottom: 1px solid #334155;
-    gap: 6px;
+    background: #0b111e;
+    padding: 8px 12px 0 12px;
+    border-bottom: 1px solid #1e293b;
+    gap: 4px;
     overflow-x: auto;
 }
 
@@ -257,11 +450,12 @@
     font-size: 0.8rem;
     font-weight: 700;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: all 0.2s var(--bks-ease-spring);
     display: flex;
     align-items: center;
     gap: 6px;
     white-space: nowrap;
+    position: relative;
 }
 
 .brandkit-tab-btn:hover {
@@ -271,11 +465,21 @@
 
 .brandkit-tab-btn.active {
     color: #38bdf8;
-    background: #1e293b;
-    border-bottom: 2px solid #38bdf8;
+    background: #172033;
 }
 
-/* Presets Rápidos de Cores */
+.brandkit-tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #38bdf8;
+    box-shadow: 0 0 8px #38bdf8;
+}
+
+/* Presets Rápidos de Cores (1-Clique Pills) */
 .brandkit-color-presets {
     display: flex;
     gap: 8px;
@@ -288,20 +492,24 @@
     align-items: center;
     gap: 8px;
     background: #ffffff;
-    border: 1.5px solid #e2e8f0;
+    border: 1.5px solid var(--bks-border-subtle);
     border-radius: 10px;
-    padding: 6px 12px;
-    font-size: 0.78rem;
+    padding: 6px 14px;
+    font-size: 0.8rem;
     font-weight: 700;
-    color: #1e293b;
+    color: var(--bks-text-strong);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.25s var(--bks-ease-spring);
 }
 
 .brandkit-preset-pill:hover {
-    border-color: #003876;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border-color: var(--bks-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px -2px rgba(15, 23, 42, 0.1);
+}
+
+.brandkit-preset-pill:active {
+    transform: scale(0.97);
 }
 
 .brandkit-preset-dots {
@@ -314,4 +522,50 @@
     height: 10px;
     border-radius: 50%;
     border: 1px solid rgba(0, 0, 0, 0.15);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Floating Save Action Bar */
+.brandkit-save-bar {
+    position: sticky;
+    bottom: 20px;
+    z-index: 40;
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    padding: 1rem 1.75rem;
+    border-radius: 16px;
+    border: 1px solid rgba(203, 213, 225, 0.8);
+    box-shadow: 0 15px 35px -5px rgba(15, 23, 42, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 2rem;
+}
+
+.brandkit-save-btn {
+    background: linear-gradient(135deg, var(--bks-primary) 0%, #0A1428 100%);
+    color: #ffffff;
+    border: none;
+    padding: 0.85rem 2.25rem;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    box-shadow: 0 4px 15px var(--bks-primary-glow), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s var(--bks-ease-spring);
+}
+
+.brandkit-save-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px -2px var(--bks-primary-glow), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.brandkit-save-btn:active {
+    transform: scale(0.98);
 }

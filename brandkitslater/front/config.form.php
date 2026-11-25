@@ -553,12 +553,13 @@ try {
                     </div>
                 </div>
 
-                <!-- Botão de Salvar Fixo -->
-                <div style="position: sticky; bottom: 20px; z-index: 40; background: #ffffff; padding: 1.25rem 2rem; border-radius: 16px; border: 1px solid #cbd5e1; box-shadow: 0 10px 30px rgba(0,0,0,0.12); display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
-                    <div style="font-size: 0.85rem; color: #64748b;">
-                        As alterações entram em vigor imediatamente para todos os usuários.
+                <!-- Botão de Salvar Fixo Flutuante -->
+                <div class="brandkit-save-bar">
+                    <div style="font-size: 0.85rem; color: #64748b; display: flex; align-items: center; gap: 8px;">
+                        <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #10b981;"></span>
+                        <span>As alterações entram em vigor imediatamente para todos os usuários.</span>
                     </div>
-                    <button type="submit" style="background: linear-gradient(135deg, #003876 0%, #0A1428 100%); color: #ffffff; border: none; padding: 0.9rem 2.5rem; border-radius: 12px; font-weight: 700; font-size: 1rem; cursor: pointer; box-shadow: 0 4px 15px rgba(0, 56, 118, 0.4); display: flex; align-items: center; gap: 8px;">
+                    <button type="submit" class="brandkit-save-btn">
                         <span>💾 Salvar e Aplicar Tema</span>
                     </button>
                 </div>
@@ -572,11 +573,16 @@ try {
 
                 <!-- Barra de Ferramentas Superior do Preview -->
                 <div class="brandkit-preview-toolbar">
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <span style="width: 10px; height: 10px; border-radius: 50%; background: #10b981; box-shadow: 0 0 6px #10b981;"></span>
-                        <span style="font-size: 0.8rem; font-weight: 700; letter-spacing: 0.03em;">PREVIEW EM TEMPO REAL</span>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="display: flex; gap: 6px;">
+                            <span style="width: 10px; height: 10px; border-radius: 50%; background: #ef4444; opacity: 0.85;"></span>
+                            <span style="width: 10px; height: 10px; border-radius: 50%; background: #f59e0b; opacity: 0.85;"></span>
+                            <span style="width: 10px; height: 10px; border-radius: 50%; background: #10b981; opacity: 0.85;"></span>
+                        </div>
+                        <span style="font-size: 0.78rem; font-weight: 700; letter-spacing: 0.04em; color: #e2e8f0;">STUDIO PREVIEW</span>
+                        <span id="bks-contrast-badge" class="brandkit-contrast-badge">✨ WCAG AAA (8.4:1)</span>
                     </div>
-                    <div style="display: flex; gap: 6px;">
+                    <div class="brandkit-device-segmented">
                         <button type="button" class="brandkit-device-btn active" data-device="desktop">🖥️ Desktop</button>
                         <button type="button" class="brandkit-device-btn" data-device="tablet">📟 Tablet</button>
                         <button type="button" class="brandkit-device-btn" data-device="mobile">📱 Celular</button>

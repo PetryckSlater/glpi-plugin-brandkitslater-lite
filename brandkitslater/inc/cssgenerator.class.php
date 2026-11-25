@@ -202,7 +202,18 @@ body.page-anonymous .container-tight,
     box-sizing: border-box !important;
 }
 
-/* 6. CARTÃO DE LOGIN GLASSMORPHISM PREMIUM */
+@keyframes bksCardEntrance {
+    0% {
+        opacity: 0;
+        transform: translateY(20px) scale(0.985);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* 6. CARTÃO DE LOGIN GLASSMORPHISM 2.0 PREMIUM */
 .card.card-md,
 .card.main-content-card,
 body.welcome-anonymous .card,
@@ -213,11 +224,12 @@ body:has(input[name=\"login_name\"]) .card {
     -webkit-backdrop-filter: {$cardBackdrop} !important;
     border: {$cardBorder} !important;
     border-radius: {$cardRadius}px !important;
-    box-shadow: 0 25px 60px -15px rgba(5, 12, 26, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.4) !important;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.45), 0 20px 45px -10px rgba(0, 10, 30, 0.45), 0 40px 80px -20px rgba(0, 0, 0, 0.35) !important;
     overflow: hidden !important;
     position: relative !important;
     width: 100% !important;
     box-sizing: border-box !important;
+    animation: bksCardEntrance 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
 }
 
 /* Faixa Superior Accent */
@@ -389,7 +401,7 @@ body.welcome-anonymous .form-control {
 .card-body input[type=\"password\"]:focus {
     background-color: #ffffff !important;
     border-color: {$primary} !important;
-    box-shadow: 0 0 0 4px rgba(0, 56, 118, 0.16) !important;
+    box-shadow: 0 0 0 4px rgba(0, 56, 118, 0.16), 0 1px 2px rgba(0,0,0,0.05) !important;
     outline: none !important;
 }
 
@@ -426,8 +438,8 @@ body.page-anonymous button[type=\"submit\"] {
     font-size: 1rem !important;
     letter-spacing: 0.02em !important;
     color: #ffffff !important;
-    box-shadow: 0 8px 22px rgba(0, 56, 118, 0.38) !important;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.3), 0 8px 22px rgba(0, 56, 118, 0.38) !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
     width: 100% !important;
     min-width: 100% !important;
     display: block !important;
@@ -441,7 +453,12 @@ body.page-anonymous button[type=\"submit\"] {
 .card-body button[type=\"submit\"]:hover {
     background: linear-gradient(135deg, {$primaryHover} 0%, #001f3f 100%) !important;
     transform: translateY(-2px) !important;
-    box-shadow: 0 12px 28px rgba(0, 56, 118, 0.50) !important;
+    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.4), 0 12px 28px rgba(0, 56, 118, 0.50) !important;
+}
+
+.card-body .btn-primary:active,
+.card-body button[type=\"submit\"]:active {
+    transform: scale(0.98) !important;
 }
 
 /* 11. LINKS DE ESQUECEU A SENHA */

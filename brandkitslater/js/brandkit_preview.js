@@ -248,12 +248,60 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         // -------------------------------------------------------------
-        // 4. ATUALIZAÇÃO DOS TEXTOS INDICADORES DOS SLIDERS
+        // 4. ATUALIZAÇÃO DOS TEXTOS INDICADORES E PROGRESSO DOS SLIDERS
         // -------------------------------------------------------------
         document.querySelectorAll('.brandkit-slider-value').forEach(span => {
             const targetId = span.getAttribute('data-target');
             if (targetId && document.getElementById(targetId)) {
                 span.textContent = document.getElementById(targetId).value + (span.getAttribute('data-unit') || '');
+            }
+        });
+
+        // Sincroniza visual dos sliders e badge WCAG
+        syncAllSlidersProgress(primary);
+        updateContrastBadge(primary);
+    }
+
+    // Helper: Cálculo de luminância relativa e contraste WCAG
+    function getLuminance(hex) {
+        if (!hex || hex.length < 6) return 0.5;
+        hex = hex.replace('#', '');
+        const r = parseInt(hex.substr(0, 2), 16) / 255;
+        const g = parseInt(hex.substr(2, 2), 16) / 255;
+        const b = parseInt(hex.substr(4, 2), 16) / 255;
+        const a = [r, g, b].map(v => (v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4)));
+        return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722;
+    }
+
+    function updateContrastBadge(btnColor) {
+        const badge = document.getElementById('bks-contrast-badge');
+        if (!badge) return;
+        const l1 = getLuminance('#ffffff');
+        const l2 = getLuminance(btnColor || '#1e293b');
+        const ratio = (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+        const ratioFormatted = ratio.toFixed(1) + ':1';
+
+        if (ratio >= 7.0) {
+            badge.className = 'brandkit-contrast-badge';
+            badge.textContent = `✨ WCAG AAA (${ratioFormatted})`;
+        } else if (ratio >= 4.5) {
+            badge.className = 'brandkit-contrast-badge';
+            badge.textContent = `✅ WCAG AA (${ratioFormatted})`;
+        } else {
+            badge.className = 'brandkit-contrast-badge warn';
+            badge.textContent = `⚠️ Contraste Baixo (${ratioFormatted})`;
+        }
+    }
+
+    function syncAllSlidersProgress(fillColor) {
+        document.querySelectorAll('.brandkit-slider-group input[type="range"]').forEach(slider => {
+            const min = parseFloat(slider.min) || 0;
+            const max = parseFloat(slider.max) || 100;
+            const val = parseFloat(slider.value) || 0;
+            const progress = ((val - min) / (max - min)) * 100;
+            slider.style.setProperty('--slider-progress', `${progress}%`);
+            if (fillColor) {
+                slider.style.setProperty('--slider-fill-color', fillColor);
             }
         });
     }
