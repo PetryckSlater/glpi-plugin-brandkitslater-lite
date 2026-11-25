@@ -60,7 +60,7 @@ GLPI Core
 Acesse a pasta de plugins do seu servidor GLPI:
 ```bash
 cd /var/www/html/glpi/plugins
-git clone https://github.com/SEU_USUARIO/glpi-plugin-brandkitslater-lite.git brandkitslater
+git clone https://github.com/PetryckSlater/glpi-plugin-brandkitslater-lite.git brandkitslater
 chown -R www-data:www-data brandkitslater
 ```
 
@@ -104,4 +104,4 @@ Distribuído sob a licença **GPL-2.0**. Consulte o arquivo [LICENSE](LICENSE) p
 Desenvolvido por **Petryck Slater**  
 - Especialista em Infraestrutura de TI, DevOps & Customizações GLPI.
 - LinkedIn: [linkedin.com/in/petryck-slater](https://www.linkedin.com)
-- GitHub: [github.com/SEU_USUARIO](https://github.com)
+- GitHub: [github.com/PetryckSlater](https://github.com/PetryckSlater)
