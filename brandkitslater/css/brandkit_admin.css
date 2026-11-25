@@ -1,0 +1,317 @@
+/* =============================================================================
+   BrandKitSlater - Estilização do Painel de Administração / Studio
+   ============================================================================= */
+
+.brandkit-studio-wrapper {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+    margin-top: 1.5rem;
+}
+
+@media (max-width: 1200px) {
+    .brandkit-studio-wrapper {
+        flex-direction: column;
+    }
+}
+
+.brandkit-controls-col {
+    flex: 1;
+    min-width: 0;
+}
+
+.brandkit-preview-col {
+    flex: 1;
+    min-width: 0;
+    position: sticky;
+    top: 20px;
+}
+
+/* Cartões e Abas */
+.brandkit-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+    padding: 1.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.brandkit-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+/* Seletor Visual de Posição (Radio Cards) */
+.brandkit-position-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.brandkit-position-card {
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #f8fafc;
+}
+
+.brandkit-position-card:hover {
+    border-color: #94a3b8;
+    background: #ffffff;
+}
+
+.brandkit-position-card.active {
+    border-color: #003876;
+    background: #eff6ff;
+    box-shadow: 0 0 0 3px rgba(0, 56, 118, 0.15);
+}
+
+.brandkit-pos-icon {
+    height: 48px;
+    background: #e2e8f0;
+    border-radius: 6px;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    padding: 6px;
+}
+
+.brandkit-pos-box {
+    width: 28px;
+    height: 36px;
+    background: #003876;
+    border-radius: 4px;
+}
+
+/* Seletor Visual de Formatos de Logo (Shape Cards) */
+.brandkit-shape-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+@media (max-width: 640px) {
+    .brandkit-shape-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.brandkit-shape-card {
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 0.85rem 0.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #f8fafc;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.brandkit-shape-card:hover {
+    border-color: #94a3b8;
+    background: #ffffff;
+}
+
+.brandkit-shape-card.active {
+    border-color: #003876;
+    background: #eff6ff;
+    box-shadow: 0 0 0 3px rgba(0, 56, 118, 0.15);
+}
+
+.brandkit-shape-icon-demo {
+    width: 44px;
+    height: 28px;
+    background: #003876;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 700;
+    transition: all 0.2s ease;
+}
+
+.brandkit-shape-icon-demo.standard {
+    border-radius: 2px;
+}
+
+.brandkit-shape-icon-demo.rounded {
+    border-radius: 8px;
+}
+
+.brandkit-shape-icon-demo.circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+}
+
+.brandkit-shape-icon-demo.pill {
+    border-radius: 9999px;
+    padding: 0 4px;
+}
+
+.brandkit-shape-icon-demo.bordered {
+    border: 2px solid #C0122D;
+    background: #ffffff;
+    color: #003876;
+    border-radius: 8px;
+}
+
+.brandkit-shape-icon-demo.glow {
+    border-radius: 4px;
+    box-shadow: 0 0 10px #0095b7, 0 0 4px #0095b7;
+}
+
+/* Sliders Elegantes */
+.brandkit-slider-group {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.brandkit-slider-group input[type="range"] {
+    flex: 1;
+    accent-color: #003876;
+}
+
+.brandkit-slider-value {
+    min-width: 55px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: #003876;
+    background: #eff6ff;
+    padding: 4px 8px;
+    border-radius: 6px;
+    text-align: center;
+}
+
+/* Moldura do Live Preview */
+.brandkit-preview-frame {
+    border: 1px solid #cbd5e1;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.25);
+    background: #0f172a;
+    transition: max-width 0.3s ease;
+    margin: 0 auto;
+}
+
+.brandkit-preview-toolbar {
+    background: #1e293b;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: #ffffff;
+    border-bottom: 1px solid #334155;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.brandkit-device-btn {
+    background: transparent;
+    border: 1px solid #475569;
+    color: #cbd5e1;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.brandkit-device-btn.active, .brandkit-device-btn:hover {
+    background: #003876;
+    border-color: #003876;
+    color: #ffffff;
+}
+
+/* Abas de Navegação do Preview (Tabs) */
+.brandkit-preview-tabs {
+    display: flex;
+    background: #0f172a;
+    padding: 6px 10px 0 10px;
+    border-bottom: 1px solid #334155;
+    gap: 6px;
+    overflow-x: auto;
+}
+
+.brandkit-tab-btn {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    padding: 8px 14px;
+    border-radius: 8px 8px 0 0;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.brandkit-tab-btn:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.brandkit-tab-btn.active {
+    color: #38bdf8;
+    background: #1e293b;
+    border-bottom: 2px solid #38bdf8;
+}
+
+/* Presets Rápidos de Cores */
+.brandkit-color-presets {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 1.25rem;
+}
+
+.brandkit-preset-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 6px 12px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #1e293b;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.brandkit-preset-pill:hover {
+    border-color: #003876;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.brandkit-preset-dots {
+    display: flex;
+    gap: 3px;
+}
+
+.brandkit-preset-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+}

@@ -1,0 +1,11 @@
+# GLPI & IDE Ignores
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.idea/
+.vscode/
+
+# Build and Temp files
+*.tmp
+*.log
