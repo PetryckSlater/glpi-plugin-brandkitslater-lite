@@ -1,4 +1,113 @@
-/* =============================================================================
-   BrandKitSlater - Global System Theme
-   Layout interno desabilitado por padrão para preservar 100% o Light Mode nativo do GLPI.
-   ============================================================================= */
+/* BrandKitSlater v2.2 - Native GLPI Integration Layer */
+
+:root {
+    --glpi-logo: url('/plugins/brandkitslater/pics/logo_sidebar_light.svg') !important;
+    --glpi-logo-reduced: url('/plugins/brandkitslater/pics/logo_collapsed.svg') !important;
+}
+
+/* Container Size-Aware no cabeçalho da barra lateral (Modern Web Guidance: container-type) */
+aside.navbar-vertical .navbar-brand,
+.navbar-vertical .navbar-brand {
+    container-type: inline-size;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0.45rem 0.5rem !important;
+    min-height: 52px !important;
+    text-decoration: none !important;
+    transition: padding 0.2s ease !important;
+}
+
+header.topbar .navbar-brand {
+    display: inline-flex !important;
+    align-items: center !important;
+}
+
+/* Fallback CSS instantâneo antes do JS hidratar as tags <img> */
+.page .navbar-brand:not(:has(.brandkit-sidebar-logo)) .glpi-logo {
+    background-image: url('/plugins/brandkitslater/pics/logo_sidebar_light.svg') !important;
+    background-size: contain !important;
+    background-position: center center !important;
+    background-repeat: no-repeat !important;
+    width: 150px !important;
+    height: 40px !important;
+}
+
+body.navbar-collapsed .page .navbar-brand:not(:has(.brandkit-sidebar-logo)) .glpi-logo {
+    background-image: url('/plugins/brandkitslater/pics/logo_collapsed.svg') !important;
+    background-size: contain !important;
+    background-position: center center !important;
+    width: 38px !important;
+    height: 38px !important;
+    margin: 0 auto !important;
+}
+
+/* Assim que o JS injeta os elementos dedicados, oculta o span legado sem FOUC */
+.navbar-brand:has(.brandkit-sidebar-logo) .glpi-logo {
+    display: none !important;
+}
+
+/* Logo do Menu Inteiro (Expandido / Horizontal) */
+.brandkit-logo-expanded {
+    display: block !important;
+    max-width: 150px !important;
+    max-height: 40px !important;
+    width: auto !important;
+    height: auto !important;
+    object-fit: contain !important;
+    margin: 0 auto !important;
+    transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    
+    
+}
+
+/* Ícone do Menu Recolhido (Oculto quando o menu está aberto) */
+.brandkit-logo-collapsed {
+    display: none !important;
+    width: 38px !important;
+    height: 38px !important;
+    max-width: 38px !important;
+    max-height: 38px !important;
+    object-fit: contain !important;
+    margin: 0 auto !important;
+    flex-shrink: 0 !important;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease !important;
+    border-radius: 10px !important;
+}
+
+.brandkit-logo-collapsed:hover {
+    transform: scale(1.06) !important;
+}
+
+/* Troca automática quando o menu lateral do GLPI está recolhido (70px) */
+body.navbar-collapsed .navbar-vertical .navbar-brand,
+body.menu-collapsed .navbar-vertical .navbar-brand {
+    padding: 0.45rem 0 !important;
+    margin-inline: 0 !important;
+    width: 100% !important;
+    justify-content: center !important;
+}
+
+body.navbar-collapsed .navbar-vertical .brandkit-logo-expanded,
+body.menu-collapsed .navbar-vertical .brandkit-logo-expanded {
+    display: none !important;
+}
+
+body.navbar-collapsed .navbar-vertical .brandkit-logo-collapsed,
+body.menu-collapsed .navbar-vertical .brandkit-logo-collapsed {
+    display: block !important;
+}
+
+/* Container Query de segurança caso a largura útil do navbar-brand fique <= 90px */
+@supports (container-type: inline-size) {
+    @container (max-width: 90px) {
+        .brandkit-logo-expanded {
+            display: none !important;
+        }
+        .brandkit-logo-collapsed {
+            display: block !important;
+        }
+    }
+}
+
+/* BrandKitSlater: Modo Híbrido ativo (cores nativas do GLPI preservadas). */

@@ -1,6 +1,3 @@
-/**
- * BrandKitSlater Lite v2.2 - Dados de Configuração em Tempo Real para o Frontend
- */
 window.BRANDKIT_DATA = {
     "enable_custom_logos": 1,
     "logo_url": "/plugins/brandkitslater/pics/logo.svg",

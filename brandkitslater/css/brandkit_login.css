@@ -1,10 +1,10 @@
+
 /* =============================================================================
-   BrandKitSlater Lite - Login Stylesheet Premium Community Edition
-   Modern Split-Screen / Center Glassmorphism Login Layout
+   BrandKitSlater v2.2 - Dynamic Login Theme (Glassmorphism 2.0)
    ============================================================================= */
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap');
 
-/* 1. FUNDO DA PÁGINA & IMAGEM DA SEDE */
+/* 1. FUNDO DA PÁGINA */
 body.page-anonymous,
 body.welcome-anonymous,
 body:has(input[name="login_name"]),
@@ -40,7 +40,7 @@ body:has(#login_name)::before {
     pointer-events: none !important;
 }
 
-/* 3. ALINHAMENTO DO CONTÊINER E SUPORTE A GLPI 10 E GLPI 11 */
+/* 3. ALINHAMENTO DO CONTÊINER (GLPI 10 & GLPI 11) */
 main#page.page-anonymous,
 .page-anonymous,
 .welcome-anonymous {
@@ -65,7 +65,7 @@ body.page-anonymous .flex-fill,
     box-sizing: border-box !important;
 }
 
-/* 4. ELIMINA DEFINITIVAMENTE O LOGO SOLTO DO GLPI NO CÉU */
+/* 4. OCULTA LOGO NATIVO SOLTO FORA DO CARD */
 .container-tight > .text-center:first-child,
 .container-tight > .text-center:has(.glpi-logo),
 .container-tight > .text-center:has([class*="glpi-logo"]),
@@ -88,15 +88,14 @@ body:has(input[name="login_name"]) img[alt="GLPI"]:not(.brandkit-card-logo) {
     overflow: hidden !important;
 }
 
-/* 5. LARGURA E POSICIONAMENTO DO CONTAINER-TIGHT */
+/* 5. LARGURA E POSICIONAMENTO DO CONTAINER */
 .container-tight,
 body.welcome-anonymous .container-tight,
 body.page-anonymous .container-tight,
 .page-anonymous .container {
     max-width: 440px !important;
     width: 100% !important;
-    margin-left: auto !important;
-    margin-right: 0 !important;
+    margin-left: auto !important; margin-right: 0 !important;
     padding: 0 !important;
     margin-top: 0 !important;
     margin-bottom: 0 !important;
@@ -106,7 +105,7 @@ body.page-anonymous .container-tight,
 @keyframes bksCardEntrance {
     0% {
         opacity: 0;
-        transform: translateY(20px) scale(0.985);
+        transform: translateY(18px) scale(0.985);
     }
     100% {
         opacity: 1;
@@ -114,7 +113,7 @@ body.page-anonymous .container-tight,
     }
 }
 
-/* 6. CARTÃO DE LOGIN GLASSMORPHISM 2.0 PREMIUM */
+/* 6. CARTÃO DE LOGIN GLASSMORPHISM 2.0 */
 .card.card-md,
 .card.main-content-card,
 body.welcome-anonymous .card,
@@ -133,6 +132,15 @@ body:has(input[name="login_name"]) .card {
     animation: bksCardEntrance 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
 }
 
+@media (prefers-reduced-motion: reduce) {
+    .card.card-md,
+    .card.main-content-card,
+    body.welcome-anonymous .card,
+    body.page-anonymous .card {
+        animation: none !important;
+    }
+}
+
 /* Faixa Superior de Destaque */
 .card.card-md::before,
 .card.main-content-card::before,
@@ -143,8 +151,9 @@ body:has(input[name="login_name"]) .card::before {
     display: block !important;
     height: 6px !important;
     width: 100% !important;
-    background: linear-gradient(90deg, #1e293b 0%, #6366f1 55%, #38bdf8 100%) !important;
+    background: linear-gradient(90deg, #1e293b 0%, #6366f1 100%) !important;
 }
+
 
 .card.card-md > .card-header:first-child,
 .card.main-content-card > .card-header:first-child,
@@ -152,19 +161,20 @@ body:has(input[name="login_name"]) .card::before {
     display: none !important;
 }
 
-/* Logotipo Institucional */
 .brandkit-card-logo {
     display: block !important;
     visibility: visible !important;
-    max-width: 220px !important;
-    max-height: 60px !important;
+    max-width: 210px !important;
+    max-height: 58px !important;
     width: auto !important;
     height: auto !important;
     margin: 0 auto 1.25rem auto !important;
     object-fit: contain !important;
     box-sizing: border-box !important;
     transition: all 0.25s ease !important;
+    
 }
+
 
 /* Corpo do Cartão */
 .card-body,
@@ -176,7 +186,8 @@ body:has(input[name="login_name"]) .card-body {
     box-sizing: border-box !important;
 }
 
-/* Selo Institucional */
+/* Selo Superior Customizável */
+
 .card-body::before,
 body.welcome-anonymous .card-body::before,
 body.page-anonymous .card-body::before,
@@ -196,7 +207,7 @@ body:has(input[name="login_name"]) .card-body::before {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
 }
 
-/* 7. EXPANSÃO TOTAL DAS COLUNAS INTERNAS (FIM DO FORMULÁRIO ESPREMIDO) */
+/* 7. EXPANSÃO TOTAL DAS COLUNAS INTERNAS */
 .card-body form,
 body.page-anonymous .card-body form,
 body.welcome-anonymous .card-body form {
@@ -230,7 +241,7 @@ body.welcome-anonymous .card-body .col {
     box-sizing: border-box !important;
 }
 
-/* 8. TÍTULO E SUBTÍTULOS ELEGANTES (SEM QUEBRAS VERTICAIS!) */
+/* 8. TÍTULOS E SUBTÍTULOS */
 .card-body .card-header,
 .card-body [class*="col"] .card-header {
     background: transparent !important;
@@ -258,7 +269,6 @@ body.welcome-anonymous .card-body .col {
     display: block !important;
 }
 
-/* Mensagem de Boas-Vindas do GLPI (Subtítulo elegante) */
 .card-body .rich_text_container {
     margin-bottom: 1.15rem !important;
     width: 100% !important;
@@ -281,24 +291,31 @@ body.welcome-anonymous .card-body .col {
     margin: 0 !important;
 }
 
-/* 9. CAMPOS DE ENTRADA (INPUTS MODERNOS FULL-WIDTH) */
+/* 9. CAMPOS E RÓTULOS DO FORMULÁRIO */
+.card-body .mb-3,
+.card-body .mb-4 {
+    width: 100% !important;
+    margin-bottom: 1rem !important;
+}
+
 .card-body .form-label,
-body.page-anonymous .form-label,
-body.welcome-anonymous .form-label {
+.card-body label {
     color: #334155 !important;
     font-weight: 700 !important;
     font-size: 0.78rem !important;
     text-transform: uppercase !important;
-    letter-spacing: 0.05em !important;
-    margin-bottom: 0.4rem !important;
-    display: block !important;
-    text-align: left !important;
+    letter-spacing: 0.04em !important;
+    margin-bottom: 0.45rem !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
     width: 100% !important;
 }
 
 .card-body .form-control,
 .card-body input[type="text"],
 .card-body input[type="password"],
+.card-body select.form-select,
 body.page-anonymous .form-control,
 body.welcome-anonymous .form-control {
     background-color: #f8fafc !important;
@@ -310,7 +327,7 @@ body.welcome-anonymous .form-control {
     width: 100% !important;
     min-width: 100% !important;
     box-sizing: border-box !important;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
     margin-bottom: 0.5rem !important;
 }
 
@@ -319,11 +336,10 @@ body.welcome-anonymous .form-control {
 .card-body input[type="password"]:focus {
     background-color: #ffffff !important;
     border-color: #1e293b !important;
-    box-shadow: 0 0 0 4px rgba(30, 41, 59, 0.16), 0 1px 2px rgba(0,0,0,0.05) !important;
+    box-shadow: 0 0 0 4px rgba(30, 41, 59, 0.16), 0 1px 2px rgba(0, 0, 0, 0.05) !important;
     outline: none !important;
 }
 
-/* Checkbox Lembrar de Mim */
 .card-body .form-check,
 body.page-anonymous .form-check,
 body.welcome-anonymous .form-check {
@@ -335,6 +351,10 @@ body.welcome-anonymous .form-check {
     width: 100% !important;
 }
 
+.card-body .form-check-input {
+    accent-color: #1e293b !important;
+}
+
 .card-body .form-check-label {
     font-size: 0.85rem !important;
     color: #475569 !important;
@@ -342,13 +362,13 @@ body.welcome-anonymous .form-check {
     cursor: pointer !important;
 }
 
-/* 10. BOTÃO DE LOGIN ENTERPRISE (LARGURA TOTAL 100%) */
+/* 10. BOTÃO DE LOGIN ENTERPRISE */
 .card-body .btn-primary,
 .card-body button[type="submit"],
 .card-body .form-footer button,
 .card-body .form-footer .btn,
 body.page-anonymous button[type="submit"] {
-    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+    background: linear-gradient(135deg, #1e293b 0%, #0A1428 100%) !important;
     border: none !important;
     border-radius: 12px !important;
     padding: 0.9rem 1.5rem !important;
@@ -369,7 +389,7 @@ body.page-anonymous button[type="submit"] {
 
 .card-body .btn-primary:hover,
 .card-body button[type="submit"]:hover {
-    background: linear-gradient(135deg, #334155 0%, #020617 100%) !important;
+    background: linear-gradient(135deg, #334155 0%, #001f3f 100%) !important;
     transform: translateY(-2px) !important;
     box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.4), 0 12px 28px rgba(30, 41, 59, 0.50) !important;
 }
@@ -379,10 +399,10 @@ body.page-anonymous button[type="submit"] {
     transform: scale(0.98) !important;
 }
 
-/* 11. LINKS DE ESQUECEU A SENHA */
+/* 11. LINKS E ESQUECEU A SENHA */
 .card-body .forgot_password,
 .card-body a {
-    color: #003876 !important;
+    color: #1e293b !important;
     font-weight: 600 !important;
     font-size: 0.85rem !important;
     text-decoration: none !important;
@@ -390,7 +410,7 @@ body.page-anonymous button[type="submit"] {
 }
 
 .card-body a:hover {
-    color: #C0122D !important;
+    color: #6366f1 !important;
     text-decoration: underline !important;
 }
 
@@ -459,11 +479,7 @@ body.page-anonymous button[type="submit"] {
     }
 }
 
-/* =============================================================================
-   15. SUPORTE TOTAL A AUTENTICAÇÃO DE DOIS FATORES (2FA / TOTP / MFA)
-   ============================================================================= */
-
-/* Garante que o cabeçalho e título do 2FA sejam exibidos perfeitamente */
+/* 15. SUPORTE TOTAL A AUTENTICAÇÃO DE DOIS FATORES (2FA / TOTP / MFA) */
 .card:has([data-code-type]) > .card-header:first-child,
 .card:has(input[name="totp_code[]"]) > .card-header:first-child,
 .card:has([action*="MFA"]) > .card-header:first-child,
@@ -497,7 +513,6 @@ body:has(#backup_codes) .card-title {
     line-height: 1.4 !important;
 }
 
-/* Remove margem negativa nativa m-md-n4 do formulário de 2FA */
 form[data-code-type],
 form[data-code-type].m-md-n4,
 form:has(input[name="totp_code[]"]),
@@ -506,7 +521,6 @@ form:has(input[name="totp_code[]"]).m-md-n4 {
     width: 100% !important;
 }
 
-/* Container flex dos 6 dígitos alinhados horizontalmente */
 [data-code-type="code"] .d-flex.justify-content-center,
 form:has(input[name="totp_code[]"]) .d-flex.justify-content-center,
 .card-body .d-flex[dir="ltr"] {
@@ -520,7 +534,6 @@ form:has(input[name="totp_code[]"]) .d-flex.justify-content-center,
     flex-wrap: nowrap !important;
 }
 
-/* Os 6 inputs de código 2FA: caixas quadradas elegantes e responsivas */
 input[name="totp_code[]"],
 .card-body input[name="totp_code[]"],
 body.welcome-anonymous input[name="totp_code[]"],
@@ -547,13 +560,12 @@ body.page-anonymous input[name="totp_code[]"],
 
 input[name="totp_code[]"]:focus,
 .card-body input[name="totp_code[]"]:focus {
-    border-color: #003876 !important;
-    box-shadow: 0 0 0 4px rgba(0, 56, 118, 0.18) !important;
+    border-color: #1e293b !important;
+    box-shadow: 0 0 0 4px rgba(30, 41, 59, 0.18) !important;
     background-color: #ffffff !important;
     outline: none !important;
 }
 
-/* Input do Código de Backup (quando o usuário clica em Usar Backup Code) */
 input[name="backup_code"],
 .card-body input[name="backup_code"],
 .card-body .form-control[name="backup_code"] {
@@ -569,7 +581,6 @@ input[name="backup_code"],
     padding: 0.85rem 1rem !important;
 }
 
-/* Rodapé e divisor do formulário 2FA */
 form[data-code-type] .border-top,
 form:has(input[name="totp_code[]"]) .border-top {
     border-top: 1px solid #e2e8f0 !important;
@@ -595,7 +606,6 @@ form:has(input[name="totp_code[]"]) .border-top > .ms-auto {
     padding: 0 !important;
 }
 
-/* Botão "Usar um código de backup" */
 .js-tfa-switch-code-type,
 button.js-tfa-switch-code-type,
 .card-body .btn-link.js-tfa-switch-code-type,
@@ -603,7 +613,7 @@ form[data-code-type] .btn-link {
     background: transparent !important;
     border: none !important;
     box-shadow: none !important;
-    color: #003876 !important;
+    color: #1e293b !important;
     font-size: 0.88rem !important;
     font-weight: 600 !important;
     padding: 0.35rem 0 !important;
@@ -618,13 +628,12 @@ form[data-code-type] .btn-link {
 
 .js-tfa-switch-code-type:hover,
 button.js-tfa-switch-code-type:hover {
-    color: #C0122D !important;
+    color: #6366f1 !important;
     text-decoration: underline !important;
     transform: none !important;
     box-shadow: none !important;
 }
 
-/* Botão "Cancelar" do 2FA */
 form[data-code-type] button[name="totp_cancel"],
 form:has(input[name="totp_code[]"]) button[name="totp_cancel"],
 .card-body button[name="totp_cancel"] {
@@ -646,19 +655,10 @@ form:has(input[name="totp_code[]"]) button[name="totp_cancel"],
     transition: all 0.2s ease !important;
 }
 
-form[data-code-type] button[name="totp_cancel"]:hover,
-form:has(input[name="totp_code[]"]) button[name="totp_cancel"]:hover,
-.card-body button[name="totp_cancel"]:hover {
-    background: #e2e8f0 !important;
-    color: #0f172a !important;
-    transform: translateY(-1px) !important;
-}
-
-/* Botão "Verificar" do 2FA */
 form[data-code-type] button[name="continue"],
 form:has(input[name="totp_code[]"]) button[name="continue"],
 .card-body button[name="continue"] {
-    background: linear-gradient(135deg, #003876 0%, #0A1428 100%) !important;
+    background: linear-gradient(135deg, #1e293b 0%, #0A1428 100%) !important;
     border: none !important;
     color: #ffffff !important;
     font-weight: 700 !important;
@@ -671,20 +671,11 @@ form:has(input[name="totp_code[]"]) button[name="continue"],
     align-items: center !important;
     justify-content: center !important;
     margin-top: 0 !important;
-    box-shadow: 0 4px 14px rgba(0, 56, 118, 0.3) !important;
+    box-shadow: 0 4px 14px rgba(30, 41, 59, 0.3) !important;
     cursor: pointer !important;
     transition: all 0.2s ease !important;
 }
 
-form[data-code-type] button[name="continue"]:hover,
-form:has(input[name="totp_code[]"]) button[name="continue"]:hover,
-.card-body button[name="continue"]:hover {
-    background: linear-gradient(135deg, #004ba0 0%, #001f3f 100%) !important;
-    transform: translateY(-1px) !important;
-    box-shadow: 0 6px 18px rgba(0, 56, 118, 0.45) !important;
-}
-
-/* Telas de Setup Obrigatório do 2FA (QR Code e Segredo) */
 body:has([action*="MFA"]) .container-tight,
 body:has([action*="2fa"]) .container-tight,
 body:has(#backup_codes) .container-tight {
@@ -700,59 +691,6 @@ body:has([action*="2fa"]) img {
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
 }
 
-body:has([action*="MFA"]) .btn-group,
-body:has([action*="2fa"]) .btn-group {
-    display: flex !important;
-    width: 100% !important;
-    margin: 0.75rem 0 !important;
-}
-
-body:has([action*="MFA"]) .btn-group .btn-icon,
-body:has([action*="2fa"]) .btn-group .btn-icon {
-    width: auto !important;
-    min-width: auto !important;
-    padding: 0.6rem 1rem !important;
-    background: #003876 !important;
-    color: #ffffff !important;
-    border-radius: 0 10px 10px 0 !important;
-    margin-top: 0 !important;
-}
-
-/* Container e Tabela de Backup Codes */
-#backup_codes {
-    width: 100% !important;
-}
-
-#backup_codes table {
-    margin: 1rem auto !important;
-    width: 100% !important;
-    max-width: 320px !important;
-}
-
-#backup_codes td.backup-code {
-    font-family: monospace !important;
-    font-size: 1.1rem !important;
-    font-weight: 700 !important;
-    letter-spacing: 0.1em !important;
-    padding: 0.5rem 1rem !important;
-}
-
-body:has(#backup_codes) form.d-flex,
-form.d-flex.flex-row-reverse {
-    display: flex !important;
-    flex-direction: row-reverse !important;
-    width: 100% !important;
-    margin-top: 1.5rem !important;
-}
-
-body:has(#backup_codes) form.d-flex button[type="submit"],
-form.d-flex.flex-row-reverse button[type="submit"] {
-    width: auto !important;
-    min-width: 140px !important;
-    margin-top: 0 !important;
-}
-
-/* Ocultar elementos de login irrelevantes durante o fluxo de 2FA */
 body:has([data-code-type]) .brandkit-login-register-wrapper,
 body:has(input[name="totp_code[]"]) .brandkit-login-register-wrapper,
 body:has([action*="MFA"]) .brandkit-login-register-wrapper,
@@ -763,3 +701,5 @@ body:has([action*="MFA"]) .card-body::before,
 body:has(#backup_codes) .card-body::before {
     display: none !important;
 }
+
+
