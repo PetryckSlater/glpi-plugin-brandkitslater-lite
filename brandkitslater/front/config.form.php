@@ -7,27 +7,37 @@
  * -----------------------------------------------------------------------------
  */
 
-try {
-    if (!class_exists('Session') && file_exists(__DIR__ . '/../../../inc/includes.php')) {
-        include_once __DIR__ . '/../../../inc/includes.php';
-    }
+if (!class_exists('Session') && file_exists(__DIR__ . '/../../../inc/includes.php')) {
+    include_once __DIR__ . '/../../../inc/includes.php';
+}
 
-    if (class_exists('Session')) {
-        Session::checkRight("config", UPDATE);
-    }
+if (class_exists('Session')) {
+    Session::checkRight("config", UPDATE);
+}
 
-    require_once __DIR__ . '/../inc/config.class.php';
-    require_once __DIR__ . '/../inc/cssgenerator.class.php';
+require_once __DIR__ . '/../inc/config.class.php';
+require_once __DIR__ . '/../inc/cssgenerator.class.php';
 
-    $pluginWebDir = (class_exists('Plugin') && method_exists('Plugin', 'getWebDir'))
-        ? Plugin::getWebDir('brandkitslater')
-        : '/plugins/brandkitslater';
+$pluginWebDir = (class_exists('Plugin') && method_exists('Plugin', 'getWebDir'))
+    ? Plugin::getWebDir('brandkitslater')
+    : '/plugins/brandkitslater';
 
-    if (isset($_POST['save_brandkit'])) {
+$saveErrorMsg = null;
+if (isset($_POST['save_brandkit'])) {
+    try {
         PluginBrandkitslaterConfig::saveConfig($_POST, $_FILES);
+    } catch (\Throwable $saveEx) {
+        $saveErrorMsg = $saveEx->getMessage();
+        if (class_exists('Toolbox')) {
+            Toolbox::logInFile('php-errors', "BrandKitSlater Save Error: " . $saveEx->getMessage() . "\n" . $saveEx->getTraceAsString());
+        }
+    }
+    if ($saveErrorMsg === null) {
         Html::redirect($pluginWebDir . '/front/config.form.php?saved=1');
     }
+}
 
+try {
     $c = PluginBrandkitslaterConfig::getConfig();
 
     Html::header("BrandKit Studio", $pluginWebDir . '/front/config.form.php', "config", "pluginbrandkitslaterconfig");
@@ -36,7 +46,11 @@ try {
     echo '<link rel="stylesheet" type="text/css" href="' . $pluginWebDir . '/css/brandkit_admin.css?v=' . $cacheBust . '">';
     echo '<script src="' . $pluginWebDir . '/js/brandkit_preview.js?v=' . $cacheBust . '"></script>';
 
-    if (isset($_GET['saved'])) {
+    if ($saveErrorMsg !== null) {
+        echo '<div style="margin: 1rem 2rem 0 2rem; background: #fef2f2; border: 1.5px solid #ef4444; color: #991b1b; padding: 0.95rem 1.4rem; border-radius: 12px; font-weight: 700;">';
+        echo '⚠️ Erro ao salvar configurações: ' . htmlspecialchars($saveErrorMsg);
+        echo '</div>';
+    } elseif (isset($_GET['saved'])) {
         echo '<div style="margin: 1rem 2rem 0 2rem; background: #ecfdf5; border: 1.5px solid #10b981; color: #065f46; padding: 0.95rem 1.4rem; border-radius: 12px; font-weight: 700; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 12px rgba(16,185,129,0.12);">';
         echo '<span>✅ Configurações salvas! Logos (Menu Inteiro & Recolhido), CSS e tokens do GLPI recompilados instantaneamente.</span>';
         echo '</div>';
@@ -981,6 +995,14 @@ try {
 <?php
     Html::footer();
 } catch (\Throwable $e) {
+    // No GLPI 11 (Symfony Kernel), Html::redirect() e respostas HTTP operam lançando RedirectException / HttpException!
+    if (
+        (class_exists('Glpi\Exception\RedirectException') && $e instanceof \Glpi\Exception\RedirectException)
+        || (interface_exists('Symfony\Component\HttpKernel\Exception\HttpExceptionInterface') && $e instanceof \Symfony\Component\HttpKernel\Exception\HttpExceptionInterface)
+        || strpos(get_class($e), 'RedirectException') !== false
+    ) {
+        throw $e;
+    }
     if (class_exists('Toolbox')) {
         Toolbox::logInFile('php-errors', "BrandKitSlater Form Error: " . $e->getMessage() . "\n" . $e->getTraceAsString());
     }

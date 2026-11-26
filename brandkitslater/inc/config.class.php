@@ -268,7 +268,7 @@ class PluginBrandkitslaterConfig extends PluginBrandkitslaterBase {
         }
     }
 
-    private static function processMediaUpload(array $files, string $fileKey, string $baseName, array $allowedExts, string $currentUrl, string $picsDir): string {
+    private static function processMediaUpload(array $files, string $fileKey, string $baseName, array $allowedExts, string $currentUrl, string $picsDir, string $fallbackUrl = ''): string {
         if (!empty($files[$fileKey]['tmp_name']) && ($files[$fileKey]['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_OK) {
             $ext = strtolower(pathinfo($files[$fileKey]['name'], PATHINFO_EXTENSION));
             if (in_array($ext, $allowedExts, true)) {
@@ -280,6 +280,29 @@ class PluginBrandkitslaterConfig extends PluginBrandkitslaterBase {
                 }
             }
         }
+
+        if (strpos($currentUrl, 'data:image/') === 0 && preg_match('#^data:image/([a-zA-Z0-9+.-]+);base64,(.+)$#s', $currentUrl, $m)) {
+            $mimeSub = strtolower($m[1]);
+            $extMap  = ['jpeg' => 'jpg', 'jpg' => 'jpg', 'png' => 'png', 'webp' => 'webp', 'svg+xml' => 'svg', 'x-icon' => 'ico', 'vnd.microsoft.icon' => 'ico'];
+            $ext     = $extMap[$mimeSub] ?? 'png';
+            if (in_array($ext, $allowedExts, true)) {
+                $decoded = base64_decode($m[2], true);
+                if ($decoded !== false) {
+                    $fileName = $baseName . '.' . $ext;
+                    $target   = $picsDir . '/' . $fileName;
+                    if (@file_put_contents($target, $decoded) !== false) {
+                        @chmod($target, 0664);
+                        return '/plugins/brandkitslater/pics/' . $fileName . '?v=' . time();
+                    }
+                }
+            }
+            return $fallbackUrl;
+        }
+
+        if (strlen($currentUrl) > 250) {
+            return $fallbackUrl;
+        }
+
         return $currentUrl;
     }
 
@@ -299,29 +322,31 @@ class PluginBrandkitslaterConfig extends PluginBrandkitslaterBase {
             @mkdir($picsDir, 0775, true);
         }
 
+        $existing = self::getConfig();
+
         $bgImageUrl = self::processMediaUpload(
             $files, 'bg_image_file', 'custom_login_bg', ['jpg', 'jpeg', 'png', 'webp'],
-            trim($input['bg_image_url'] ?? $defaults['bg_image_url']), $picsDir
+            trim($input['bg_image_url'] ?? $existing['bg_image_url']), $picsDir, $existing['bg_image_url']
         );
 
         $faviconUrl = self::processMediaUpload(
             $files, 'favicon_file', 'custom_favicon', ['ico', 'png', 'svg'],
-            trim($input['favicon_url'] ?? $defaults['favicon_url']), $picsDir
+            trim($input['favicon_url'] ?? $existing['favicon_url']), $picsDir, $existing['favicon_url']
         );
 
         $logoUrl = self::processMediaUpload(
             $files, 'logo_file', 'custom_logo', ['png', 'svg', 'jpg', 'jpeg', 'webp'],
-            trim($input['logo_url'] ?? $defaults['logo_url']), $picsDir
+            trim($input['logo_url'] ?? $existing['logo_url']), $picsDir, $existing['logo_url']
         );
 
         $sidebarLogoUrl = self::processMediaUpload(
             $files, 'sidebar_logo_file', 'custom_sidebar_logo', ['png', 'svg', 'jpg', 'jpeg', 'webp'],
-            trim($input['sidebar_logo_url'] ?? ''), $picsDir
+            trim($input['sidebar_logo_url'] ?? ''), $picsDir, $existing['sidebar_logo_url'] ?? ''
         );
 
         $collapsedLogoUrl = self::processMediaUpload(
             $files, 'collapsed_logo_file', 'custom_collapsed_logo', ['png', 'svg', 'ico', 'jpg', 'jpeg', 'webp'],
-            trim($input['collapsed_logo_url'] ?? $defaults['collapsed_logo_url']), $picsDir
+            trim($input['collapsed_logo_url'] ?? $existing['collapsed_logo_url']), $picsDir, $existing['collapsed_logo_url']
         );
 
         $validShapes = ['standard', 'rounded', 'circle', 'pill', 'glass_badge', 'bordered', 'glow'];
