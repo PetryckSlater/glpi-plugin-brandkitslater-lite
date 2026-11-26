@@ -1,107 +1,59 @@
-# 🎨 BrandKitSlater Lite — Customizador Visual & Theming para GLPI 10 & 11
+# 🎨 BrandKitSlater Lite v2.2 — Customizador Visual Nativo & Theming Studio para GLPI 10 & 11
 
 ![GLPI 10](https://img.shields.io/badge/GLPI-10.0.x-blue.svg?style=for-the-badge&logo=php)
 ![GLPI 11](https://img.shields.io/badge/GLPI-11.0.x-success.svg?style=for-the-badge&logo=php)
+![Version](https://img.shields.io/badge/Version-2.2.0--lite-0ea5e9.svg?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-GPL--2.0-orange.svg?style=for-the-badge)
-![Edition](https://img.shields.io/badge/Edition-Community%20Lite-purple.svg?style=for-the-badge)
 
-**BrandKitSlater Lite** é uma suíte visual moderna e open-source para **GLPI 10 e GLPI 11**, desenvolvida para transformar a identidade visual da sua Central de Serviços e Service Desk sem a necessidade de editar arquivos internos do core do GLPI ou quebrar durante atualizações de versão.
-
----
-
-## ✨ Recursos da Versão Community Lite
-
-### 🖼️ Tela de Login Glassmorphism & Split-Screen
-- **Layout Moderno:** Cartão flutuante em Glassmorphism com desfoque de fundo (`backdrop-filter: blur(12px)`), bordas translúcidas e sombras suaves.
-- **Fundo Personalizado (Wallpaper):** Defina a imagem de fundo via URL ou faça upload direto de arquivos JPG, PNG ou WebP pelo painel.
-- **Gradiente Dinâmico de Contraste:** Slider ajustável de 0% a 95% para escurecer o fundo sob medida e garantir legibilidade total no formulário.
-- **Atalho de Auto-Cadastro:** Ativação/desativação rápida de botão para portais externos ou criação de contas públicas.
-
-### 🎨 Paleta de Cores e Modo Híbrido
-- **Paletas Rápidas de 1 Clique:**
-  - 🏢 **Corporate Slate:** Tons neutros corporativos de alta tecnologia com acentos índigo.
-  - ☀️ **Clean Light:** Visual minimalista claro e arejado com toques em azul royal.
-  - 🌿 **Emerald Nature:** Tons verdes e terra com forte apelo ecológico e sustentável.
-  - 🍷 **Bordeaux:** Elegância clássica em bordô e dourado suave.
-- **Modo Híbrido Inteligente:**
-  - Permite escolher entre manter o painel interno no *Light Mode padrão do GLPI* aplicando o tema apenas no login, OU estender o brandkit completo para o cabeçalho, barra lateral e botões do sistema.
-
-### 🛡️ Gestão de Logotipo & Favicon
-- **Logotipo Customizado:** Suporte a SVG, PNG e WebP com preview instantâneo e controles de alinhamento e proporção.
-- **Favicon Dinâmico da Aba:** Upload e atualização automática do ícone da aba do navegador em múltiplos formatos (`.ico`, `.png`, `.svg`).
-
-### 🖥️ Studio de Preview Interativo em Tempo Real
-- Visualize as mudanças antes de salvar! O painel administrativo conta com abas simuladas de:
-  1. **Tela de Login** (com inputs e botões em miniatura).
-  2. **Painel Interno GLPI** (com simulação da sidebar, navbar e cartões de chamados).
-  3. **Aba do Navegador & Favicon** (com visualização do ícone em escalas de 16px, 32px e 48px).
+**BrandKitSlater Lite** é um estúdio open-source completo de identidade visual para **GLPI 10 e GLPI 11**, projetado para integrar-se nativamente à arquitetura Tabler/Bootstrap do GLPI sem modificar nenhum arquivo do core.
 
 ---
 
-## 📸 Demonstração da Arquitetura
+## 🚀 Novidades da Versão 2.2 (Deep GLPI Integration)
 
-```text
-GLPI Core
-   │
-   ├── [Hook: Display Central Header / Add Header]
-   │       └── Injeção assíncrona do CSS gerado dinamicamente
-   │
-   └── BrandKitSlater Lite
-           ├── Painel de Configuração (Studio em tempo real)
-           ├── Engine de Compilação de CSS (Variáveis e Glassmorphism)
-           └── Armazenamento Seguro no MySQL/MariaDB (Tabela glpi_plugin_brandkitslater_configs)
-```
+### 🧭 1. Controle Independente: Menu Inteiro vs. Menu Recolhido (70px)
+- **Logo do Menu Inteiro (Expandido):** Configure um logotipo horizontal exclusivo para a barra lateral aberta (com opção de fundo claro de contraste e versões claras para sidebars escuras).
+- **Ícone do Menu Recolhido (`70px` Rail):** Configure um ícone compacto `1:1` exclusivo para quando o usuário clica em **`« Recolher menu`** (`body.navbar-collapsed`), evitando logos espremidos ou cortados!
+- **Troca Reativa Instantânea (Zero-FOUC):** Sincronização dupla via CSS Container Queries (`@container`) + `MutationObserver` no DOM e variáveis nativas `--glpi-logo` / `--glpi-logo-reduced`.
+- **Formatos Independentes:** Escolha estilos exclusivos para o ícone recolhido (`Badge Glass Translúcido`, `Arredondado`, `Circular`, `Com Borda` ou `Glow`).
+
+### 🎨 2. Integração Profunda com Tokens Nativos do GLPI 11
+- Mapeamento direto nas variáveis oficiais `--glpi-mainmenu-bg`, `--glpi-mainmenu-fg`, `--tblr-primary`, `--tblr-primary-rgb` e `--tblr-border-radius`.
+- **Submenus Flutuantes (Flyouts):** Harmonização completa dos menus suspensos quando a barra lateral está recolhida em `70px`, preservando a área de hover sem gaps.
+- **Controles de Ergonomia:** Ajuste a largura da barra lateral aberta (`200px–300px`), o design dos links (`Pílula SaaS`, `Nativo GLPI` ou `Glassmorphism`), o raio global de bordas (`0–20px`) e a elevação dos cartões internos.
+- **Atalho Nativo no Menu:** Acesso direto em **Configurar > BrandKit Studio** na barra lateral do GLPI.
+
+### 🚪 3. Tela de Login Glassmorphism 2.0 & Suporte Total a 2FA/MFA
+- Cartão em vidro fosco (`backdrop-filter: blur(24px) saturate(190%)`) com bordas especulares e animação suave respeitando `prefers-reduced-motion`.
+- **Textos 100% Editáveis:** Personalize o selo superior, título, subtítulo, botão de acesso, marca na aba do navegador (`<title>`) e botão opcional de auto-cadastro externo.
+- Estilização nativa homologada para as telas de **TOTP / 2FA / Códigos de Backup** do GLPI 11.
+
+### 🖥️ 4. Live Studio Interativo em Tempo Real
+- **Simulador de Menu Recolhível ao Vivo:** Clique em `📐 Testar Menu Recolhido (70px)` ou diretamente em `« Recolher menu` dentro do preview para validar a transição entre o Logo Inteiro e o Ícone Compacto antes de salvar!
+- **Multi-Viewport & Acessibilidade:** Alterne entre Desktop, Tablet e Mobile com medidor dinâmico de contraste **WCAG AA / AAA** em tempo real.
 
 ---
 
 ## 📦 Instalação
 
 ### Opção 1: Via Git Clone
-Acesse a pasta de plugins do seu servidor GLPI:
 ```bash
 cd /var/www/html/glpi/plugins
-git clone https://github.com/PetryckSlater/glpi-plugin-brandkitslater-lite.git brandkitslater
+git clone https://github.com/PetryckSlater/glpi-plugin-brandkitslater-lite.git brandkitslater_repo
+mv brandkitslater_repo/brandkitslater ./brandkitslater
+rm -rf brandkitslater_repo
 chown -R www-data:www-data brandkitslater
 ```
 
-### Opção 2: Download do Release
-1. Baixe o pacote `.zip` da versão mais recente na aba [Releases](../../releases).
-2. Extraia o conteúdo na pasta `plugins/` garantindo que o diretório se chame estritamente **`brandkitslater`**:
-   ```text
-   glpi/
-   └── plugins/
-       └── brandkitslater/
-           ├── setup.php
-           ├── hook.php
-           ├── css/
-           ├── front/
-           ├── inc/
-           ├── js/
-           └── pics/
-   ```
-3. Abra o seu GLPI como Administrador e acesse **Configurar > Plugins**.
-4. Localize **BrandKitSlater (Community Lite)**, clique em **Instalar** e em seguida em **Ativar**.
-5. Acesse **Configurar > BrandKitSlater Studio** no menu para personalizar o tema!
+### Opção 2: Pacote `.zip` Pronto
+1. Baixe `brandkitslater-lite-v2.2.0.zip` (ou na aba [Releases](../../releases)).
+2. Extraia em `glpi/plugins/` garantindo que a pasta se chame **`brandkitslater`**.
+3. Acesse **Configurar > Plug-ins**, clique em **Instalar** e **Ativar**.
+4. Abra **Configurar > BrandKit Studio** no menu lateral e personalize!
 
 ---
 
-## 🛠️ Requisitos do Sistema
+## 📄 Licença & Autor
 
-- **GLPI:** Versões 10.0.0 até 11.0.x
-- **PHP:** 8.1 ou superior (com extensão `pdo_mysql` habilitada)
-- **Navegadores Homologados:** Google Chrome, Mozilla Firefox, Microsoft Edge, Safari e Opera
-
----
-
-## 📄 Licença
-
-Distribuído sob a licença **GPL-2.0**. Consulte o arquivo [LICENSE](LICENSE) para mais detalhes.
-
----
-
-## 👨‍💻 Autor & Portfólio
-
-Desenvolvido por **Petryck Slater**  
-- Especialista em Infraestrutura de TI, DevOps & Customizações GLPI.
-- LinkedIn: [linkedin.com/in/petryck-slater](https://www.linkedin.com)
-- GitHub: [github.com/PetryckSlater](https://github.com/PetryckSlater)
+Distribuído sob a licença **GPL-2.0**. Veja [LICENSE](LICENSE).  
+Desenvolvido por **Petryck Slater** — [github.com/PetryckSlater](https://github.com/PetryckSlater)

@@ -1,7 +1,9 @@
 <?php
 /**
  * -----------------------------------------------------------------------------
- * Plugin BrandKitSlater - Compilador e Gerador Dinâmico de CSS
+ * Plugin BrandKitSlater - Compilador e Gerador Dinâmico de CSS v2.2
+ * Integração Nativa Profunda com GLPI 10 & GLPI 11 (Tokens --glpi-* e --tblr-*)
+ * Suporte Dedicado a Menu Inteiro (Expandido) e Menu Recolhido (70px Rail)
  * -----------------------------------------------------------------------------
  */
 
@@ -10,7 +12,49 @@ defined('GLPI_ROOT') || die("Sorry. You can't access this file directly");
 class PluginBrandkitslaterCssGenerator {
 
     /**
-     * Gera o CSS dinâmico para a Tela de Login
+     * Converte cor Hex (#003876) para string RGB ("0, 56, 118") compatível com --tblr-primary-rgb
+     */
+    public static function hexToRgb(string $hex): string {
+        $clean = ltrim(trim($hex), '#');
+        if (strlen($clean) === 3) {
+            $clean = $clean[0] . $clean[0] . $clean[1] . $clean[1] . $clean[2] . $clean[2];
+        }
+        if (!preg_match('/^[0-9a-fA-F]{6}$/', $clean)) {
+            return '0, 56, 118';
+        }
+        return hexdec(substr($clean, 0, 2)) . ', ' . hexdec(substr($clean, 2, 2)) . ', ' . hexdec(substr($clean, 4, 2));
+    }
+
+    /**
+     * Gera declarações CSS de formato (shape) para logotipos e ícones
+     */
+    public static function buildShapeCss(string $shape, string $primary, bool $onDarkSurface = false): string {
+        switch ($shape) {
+            case 'rounded':
+                return "border-radius: 10px !important;";
+            case 'circle':
+                return "border-radius: 50% !important; aspect-ratio: 1 / 1 !important; object-fit: cover !important;";
+            case 'pill':
+                return "border-radius: 9999px !important; padding: 3px 8px !important;";
+            case 'glass_badge':
+                if ($onDarkSurface) {
+                    return "border-radius: 12px !important; padding: 6px !important; background: rgba(255, 255, 255, 0.12) !important; border: 1px solid rgba(255, 255, 255, 0.22) !important; backdrop-filter: blur(8px) !important; -webkit-backdrop-filter: blur(8px) !important; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;";
+                }
+                return "border-radius: 12px !important; padding: 6px !important; background: rgba(15, 23, 42, 0.06) !important; border: 1px solid rgba(15, 23, 42, 0.12) !important;";
+            case 'bordered':
+                if ($onDarkSurface) {
+                    return "border: 1.5px solid rgba(255, 255, 255, 0.35) !important; padding: 5px !important; background-color: rgba(255, 255, 255, 0.95) !important; border-radius: 12px !important; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18) !important;";
+                }
+                return "border: 2px solid {$primary} !important; padding: 6px !important; background-color: rgba(255, 255, 255, 0.96) !important; border-radius: 14px !important; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08) !important;";
+            case 'glow':
+                return "filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.55)) !important;";
+            default:
+                return "";
+        }
+    }
+
+    /**
+     * Gera o CSS dinâmico para a Tela de Login (Glassmorphism 2.0 + 2FA/MFA)
      */
     public static function generateLoginCss(array $c): string {
         $pos = $c['login_position'] ?? 'right';
@@ -34,12 +78,15 @@ class PluginBrandkitslaterCssGenerator {
         $cardRadius = (int)($c['card_radius'] ?? 22);
         $cardBlur = (int)($c['card_blur'] ?? 24);
         $cardOp = max(50, min(100, (int)($c['card_opacity'] ?? 94))) / 100;
-        $primary = $c['primary_color'] ?? '#003876';
-        $primaryHover = $c['primary_hover'] ?? '#004ba0';
-        $accent = $c['accent_color'] ?? '#C0122D';
+        $primary = $c['primary_color'] ?? '#1e293b';
+        $primaryRgb = self::hexToRgb($primary);
+        $primaryHover = $c['primary_hover'] ?? '#334155';
+        $accent = $c['accent_color'] ?? '#6366f1';
         $font = $c['font_family'] ?? 'Plus Jakarta Sans';
-        $logoUrl = trim($c['logo_url'] ?? '');
         $customCss = $c['custom_css'] ?? '';
+
+        $badgeText = isset($c['login_badge_text']) ? trim((string)$c['login_badge_text']) : 'Central de Atendimento & Suporte';
+        $escapedBadge = str_replace(["\\", "'", "\n", "\r"], ["\\\\", "\\'", " ", ""], $badgeText);
 
         // Estilo do Card
         $cardBg = "rgba(255, 255, 255, {$cardOp})";
@@ -56,26 +103,12 @@ class PluginBrandkitslaterCssGenerator {
             $cardBorder = "2px solid {$primary}";
         }
 
-        // Renderização de Logo Institucional Personalizado (se configurado)
-        $loginLogoW = (int)($c['login_logo_width'] ?? 200);
-        $loginLogoH = (int)($c['login_logo_height'] ?? 55);
-        $logoShape = $c['logo_shape'] ?? 'standard';
-        $logoFit = $c['logo_fit'] ?? 'contain';
+        $loginLogoW = (int)($c['login_logo_width'] ?? 220);
+        $loginLogoH = (int)($c['login_logo_height'] ?? 60);
+        $logoShape  = $c['logo_shape'] ?? 'standard';
+        $logoFit    = $c['logo_fit'] ?? 'contain';
+        $shapeCss   = self::buildShapeCss($logoShape, $primary, false);
 
-        $shapeCss = "";
-        if ($logoShape === 'rounded') {
-            $shapeCss = "border-radius: 12px !important;";
-        } elseif ($logoShape === 'circle') {
-            $shapeCss = "border-radius: 50% !important; aspect-ratio: 1/1 !important;";
-        } elseif ($logoShape === 'pill') {
-            $shapeCss = "border-radius: 9999px !important;";
-        } elseif ($logoShape === 'bordered') {
-            $shapeCss = "border: 2px solid {$primary} !important; padding: 6px !important; background-color: rgba(255, 255, 255, 0.95) !important; border-radius: 14px !important; box-shadow: 0 4px 15px rgba(0,0,0,0.08) !important;";
-        } elseif ($logoShape === 'glow') {
-            $shapeCss = "filter: drop-shadow(0 0 10px rgba(0, 149, 183, 0.55)) !important;";
-        }
-
-        // Garante que o header vazio nativo do GLPI permaneça oculto e estiliza a imagem do logo
         $logoCss = "
 .card.card-md > .card-header:first-child,
 .card.main-content-card > .card-header:first-child,
@@ -98,9 +131,39 @@ class PluginBrandkitslaterCssGenerator {
 }
 ";
 
+        if ($badgeText !== '') {
+            $badgeRule = "
+.card-body::before,
+body.welcome-anonymous .card-body::before,
+body.page-anonymous .card-body::before,
+body:has(input[name=\"login_name\"]) .card-body::before {
+    content: '{$escapedBadge}' !important;
+    display: table !important;
+    margin: 0 auto 1.25rem auto !important;
+    padding: 6px 16px !important;
+    border-radius: 10px !important;
+    background: #0A1428 !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    color: #ffffff !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.04em !important;
+    text-align: center !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}";
+        } else {
+            $badgeRule = "
+.card-body::before,
+body.welcome-anonymous .card-body::before,
+body.page-anonymous .card-body::before {
+    display: none !important;
+    content: none !important;
+}";
+        }
+
         return "
 /* =============================================================================
-   BrandKitSlater - Dynamic Login Theme (Community Edition)
+   BrandKitSlater v2.2 - Dynamic Login Theme (Glassmorphism 2.0)
    ============================================================================= */
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap');
 
@@ -140,7 +203,7 @@ body:has(#login_name)::before {
     pointer-events: none !important;
 }
 
-/* 3. ALINHAMENTO DO CONTÊINER E SUPORTE A GLPI 10 E GLPI 11 */
+/* 3. ALINHAMENTO DO CONTÊINER (GLPI 10 & GLPI 11) */
 main#page.page-anonymous,
 .page-anonymous,
 .welcome-anonymous {
@@ -165,7 +228,7 @@ body.page-anonymous .flex-fill,
     box-sizing: border-box !important;
 }
 
-/* 4. ELIMINA DEFINITIVAMENTE O LOGO SOLTO DO GLPI NO CÉU */
+/* 4. OCULTA LOGO NATIVO SOLTO FORA DO CARD */
 .container-tight > .text-center:first-child,
 .container-tight > .text-center:has(.glpi-logo),
 .container-tight > .text-center:has([class*=\"glpi-logo\"]),
@@ -188,7 +251,7 @@ body:has(input[name=\"login_name\"]) img[alt=\"GLPI\"]:not(.brandkit-card-logo) 
     overflow: hidden !important;
 }
 
-/* 5. LARGURA E POSICIONAMENTO DO CONTAINER-TIGHT */
+/* 5. LARGURA E POSICIONAMENTO DO CONTAINER */
 .container-tight,
 body.welcome-anonymous .container-tight,
 body.page-anonymous .container-tight,
@@ -205,7 +268,7 @@ body.page-anonymous .container-tight,
 @keyframes bksCardEntrance {
     0% {
         opacity: 0;
-        transform: translateY(20px) scale(0.985);
+        transform: translateY(18px) scale(0.985);
     }
     100% {
         opacity: 1;
@@ -213,7 +276,7 @@ body.page-anonymous .container-tight,
     }
 }
 
-/* 6. CARTÃO DE LOGIN GLASSMORPHISM 2.0 PREMIUM */
+/* 6. CARTÃO DE LOGIN GLASSMORPHISM 2.0 */
 .card.card-md,
 .card.main-content-card,
 body.welcome-anonymous .card,
@@ -232,7 +295,16 @@ body:has(input[name=\"login_name\"]) .card {
     animation: bksCardEntrance 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
 }
 
-/* Faixa Superior Accent */
+@media (prefers-reduced-motion: reduce) {
+    .card.card-md,
+    .card.main-content-card,
+    body.welcome-anonymous .card,
+    body.page-anonymous .card {
+        animation: none !important;
+    }
+}
+
+/* Faixa Superior de Destaque */
 .card.card-md::before,
 .card.main-content-card::before,
 body.welcome-anonymous .card::before,
@@ -245,7 +317,6 @@ body:has(input[name=\"login_name\"]) .card::before {
     background: linear-gradient(90deg, {$primary} 0%, {$accent} 100%) !important;
 }
 
-/* Logo customizado no topo do card */
 {$logoCss}
 
 /* Corpo do Cartão */
@@ -258,27 +329,10 @@ body:has(input[name=\"login_name\"]) .card-body {
     box-sizing: border-box !important;
 }
 
-/* Selo Superior de Atendimento */
-.card-body::before,
-body.welcome-anonymous .card-body::before,
-body.page-anonymous .card-body::before,
-body:has(input[name=\"login_name\"]) .card-body::before {
-    content: 'Central de Atendimento & Suporte' !important;
-    display: table !important;
-    margin: 0 auto 1.25rem auto !important;
-    padding: 6px 16px !important;
-    border-radius: 10px !important;
-    background: {$primary} !important;
-    border: 1px solid rgba(255, 255, 255, 0.18) !important;
-    color: #ffffff !important;
-    font-size: 11px !important;
-    font-weight: 700 !important;
-    letter-spacing: 0.04em !important;
-    text-align: center !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-}
+/* Selo Superior Customizável */
+{$badgeRule}
 
-/* 7. EXPANSÃO TOTAL DAS COLUNAS INTERNAS (FIM DO FORMULÁRIO ESPREMIDO) */
+/* 7. EXPANSÃO TOTAL DAS COLUNAS INTERNAS */
 .card-body form,
 body.page-anonymous .card-body form,
 body.welcome-anonymous .card-body form {
@@ -312,7 +366,7 @@ body.welcome-anonymous .card-body .col {
     box-sizing: border-box !important;
 }
 
-/* 8. TÍTULO E SUBTÍTULOS ELEGANTES (SEM QUEBRAS VERTICAIS!) */
+/* 8. TÍTULOS E SUBTÍTULOS */
 .card-body .card-header,
 .card-body [class*=\"col\"] .card-header {
     background: transparent !important;
@@ -340,7 +394,6 @@ body.welcome-anonymous .card-body .col {
     display: block !important;
 }
 
-/* Mensagem de Boas-Vindas do GLPI (Subtítulo elegante) */
 .card-body .rich_text_container {
     margin-bottom: 1.15rem !important;
     width: 100% !important;
@@ -363,24 +416,31 @@ body.welcome-anonymous .card-body .col {
     margin: 0 !important;
 }
 
-/* 9. CAMPOS DE ENTRADA (INPUTS MODERNOS FULL-WIDTH) */
+/* 9. CAMPOS E RÓTULOS DO FORMULÁRIO */
+.card-body .mb-3,
+.card-body .mb-4 {
+    width: 100% !important;
+    margin-bottom: 1rem !important;
+}
+
 .card-body .form-label,
-body.page-anonymous .form-label,
-body.welcome-anonymous .form-label {
+.card-body label {
     color: #334155 !important;
     font-weight: 700 !important;
     font-size: 0.78rem !important;
     text-transform: uppercase !important;
-    letter-spacing: 0.05em !important;
-    margin-bottom: 0.4rem !important;
-    display: block !important;
-    text-align: left !important;
+    letter-spacing: 0.04em !important;
+    margin-bottom: 0.45rem !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
     width: 100% !important;
 }
 
 .card-body .form-control,
 .card-body input[type=\"text\"],
 .card-body input[type=\"password\"],
+.card-body select.form-select,
 body.page-anonymous .form-control,
 body.welcome-anonymous .form-control {
     background-color: #f8fafc !important;
@@ -392,7 +452,7 @@ body.welcome-anonymous .form-control {
     width: 100% !important;
     min-width: 100% !important;
     box-sizing: border-box !important;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
     margin-bottom: 0.5rem !important;
 }
 
@@ -401,11 +461,10 @@ body.welcome-anonymous .form-control {
 .card-body input[type=\"password\"]:focus {
     background-color: #ffffff !important;
     border-color: {$primary} !important;
-    box-shadow: 0 0 0 4px rgba(0, 56, 118, 0.16), 0 1px 2px rgba(0,0,0,0.05) !important;
+    box-shadow: 0 0 0 4px rgba({$primaryRgb}, 0.16), 0 1px 2px rgba(0, 0, 0, 0.05) !important;
     outline: none !important;
 }
 
-/* Checkbox Lembrar de Mim */
 .card-body .form-check,
 body.page-anonymous .form-check,
 body.welcome-anonymous .form-check {
@@ -417,6 +476,10 @@ body.welcome-anonymous .form-check {
     width: 100% !important;
 }
 
+.card-body .form-check-input {
+    accent-color: {$primary} !important;
+}
+
 .card-body .form-check-label {
     font-size: 0.85rem !important;
     color: #475569 !important;
@@ -424,7 +487,7 @@ body.welcome-anonymous .form-check {
     cursor: pointer !important;
 }
 
-/* 10. BOTÃO DE LOGIN ENTERPRISE (LARGURA TOTAL 100%) */
+/* 10. BOTÃO DE LOGIN ENTERPRISE */
 .card-body .btn-primary,
 .card-body button[type=\"submit\"],
 .card-body .form-footer button,
@@ -438,7 +501,7 @@ body.page-anonymous button[type=\"submit\"] {
     font-size: 1rem !important;
     letter-spacing: 0.02em !important;
     color: #ffffff !important;
-    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.3), 0 8px 22px rgba(0, 56, 118, 0.38) !important;
+    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.3), 0 8px 22px rgba({$primaryRgb}, 0.38) !important;
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
     width: 100% !important;
     min-width: 100% !important;
@@ -453,7 +516,7 @@ body.page-anonymous button[type=\"submit\"] {
 .card-body button[type=\"submit\"]:hover {
     background: linear-gradient(135deg, {$primaryHover} 0%, #001f3f 100%) !important;
     transform: translateY(-2px) !important;
-    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.4), 0 12px 28px rgba(0, 56, 118, 0.50) !important;
+    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.4), 0 12px 28px rgba({$primaryRgb}, 0.50) !important;
 }
 
 .card-body .btn-primary:active,
@@ -461,7 +524,7 @@ body.page-anonymous button[type=\"submit\"] {
     transform: scale(0.98) !important;
 }
 
-/* 11. LINKS DE ESQUECEU A SENHA */
+/* 11. LINKS E ESQUECEU A SENHA */
 .card-body .forgot_password,
 .card-body a {
     color: {$primary} !important;
@@ -623,7 +686,7 @@ body.page-anonymous input[name=\"totp_code[]\"],
 input[name=\"totp_code[]\"]:focus,
 .card-body input[name=\"totp_code[]\"]:focus {
     border-color: {$primary} !important;
-    box-shadow: 0 0 0 4px rgba(0, 56, 118, 0.18) !important;
+    box-shadow: 0 0 0 4px rgba({$primaryRgb}, 0.18) !important;
     background-color: #ffffff !important;
     outline: none !important;
 }
@@ -717,14 +780,6 @@ form:has(input[name=\"totp_code[]\"]) button[name=\"totp_cancel\"],
     transition: all 0.2s ease !important;
 }
 
-form[data-code-type] button[name=\"totp_cancel\"]:hover,
-form:has(input[name=\"totp_code[]\"]) button[name=\"totp_cancel\"]:hover,
-.card-body button[name=\"totp_cancel\"]:hover {
-    background: #e2e8f0 !important;
-    color: #0f172a !important;
-    transform: translateY(-1px) !important;
-}
-
 form[data-code-type] button[name=\"continue\"],
 form:has(input[name=\"totp_code[]\"]) button[name=\"continue\"],
 .card-body button[name=\"continue\"] {
@@ -741,17 +796,9 @@ form:has(input[name=\"totp_code[]\"]) button[name=\"continue\"],
     align-items: center !important;
     justify-content: center !important;
     margin-top: 0 !important;
-    box-shadow: 0 4px 14px rgba(0, 56, 118, 0.3) !important;
+    box-shadow: 0 4px 14px rgba({$primaryRgb}, 0.3) !important;
     cursor: pointer !important;
     transition: all 0.2s ease !important;
-}
-
-form[data-code-type] button[name=\"continue\"]:hover,
-form:has(input[name=\"totp_code[]\"]) button[name=\"continue\"]:hover,
-.card-body button[name=\"continue\"]:hover {
-    background: linear-gradient(135deg, {$primaryHover} 0%, #001f3f 100%) !important;
-    transform: translateY(-1px) !important;
-    box-shadow: 0 6px 18px rgba(0, 56, 118, 0.45) !important;
 }
 
 body:has([action*=\"MFA\"]) .container-tight,
@@ -767,57 +814,6 @@ body:has([action*=\"2fa\"]) img {
     border-radius: 14px !important;
     border: 4px solid #ffffff !important;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
-}
-
-body:has([action*=\"MFA\"]) .btn-group,
-body:has([action*=\"2fa\"]) .btn-group {
-    display: flex !important;
-    width: 100% !important;
-    margin: 0.75rem 0 !important;
-}
-
-body:has([action*=\"MFA\"]) .btn-group .btn-icon,
-body:has([action*=\"2fa\"]) .btn-group .btn-icon {
-    width: auto !important;
-    min-width: auto !important;
-    padding: 0.6rem 1rem !important;
-    background: {$primary} !important;
-    color: #ffffff !important;
-    border-radius: 0 10px 10px 0 !important;
-    margin-top: 0 !important;
-}
-
-#backup_codes {
-    width: 100% !important;
-}
-
-#backup_codes table {
-    margin: 1rem auto !important;
-    width: 100% !important;
-    max-width: 320px !important;
-}
-
-#backup_codes td.backup-code {
-    font-family: monospace !important;
-    font-size: 1.1rem !important;
-    font-weight: 700 !important;
-    letter-spacing: 0.1em !important;
-    padding: 0.5rem 1rem !important;
-}
-
-body:has(#backup_codes) form.d-flex,
-form.d-flex.flex-row-reverse {
-    display: flex !important;
-    flex-direction: row-reverse !important;
-    width: 100% !important;
-    margin-top: 1.5rem !important;
-}
-
-body:has(#backup_codes) form.d-flex button[type=\"submit\"],
-form.d-flex.flex-row-reverse button[type=\"submit\"] {
-    width: auto !important;
-    min-width: 140px !important;
-    margin-top: 0 !important;
 }
 
 body:has([data-code-type]) .brandkit-login-register-wrapper,
@@ -836,17 +832,167 @@ body:has(#backup_codes) .card-body::before {
     }
 
     /**
-     * Gera o CSS dinâmico para o Painel Interno (Navbar, Cores, Fontes, Sidebar e Logos)
+     * Gera o CSS dinâmico para o Painel Interno do GLPI 10 & GLPI 11
+     * Camada 1: Logotipos do Menu Inteiro (Expandido) & Ícone do Menu Recolhido (70px)
+     * Camada 2: Tokens Nativos GLPI (--glpi-* / --tblr-*), Sidebar, Topbar, Cards e A11y
      */
     public static function generateThemeCss(array $c): string {
-        // Se o tema interno não estiver explicitamente habilitado, não injeta regras que alterem a navbar ou layout original
-        if (empty($c['enable_internal_theme'])) {
-            return "/* BrandKitSlater: Tema interno desabilitado. O GLPI está utilizando 100% o seu layout nativo (Light Mode). */\n" . (!empty($c['custom_css']) ? $c['custom_css'] : '');
+        $enableLogos        = !isset($c['enable_custom_logos']) || !empty($c['enable_custom_logos']);
+        $enableInternal     = !empty($c['enable_internal_theme']);
+        $primary            = $c['primary_color'] ?? '#1e293b';
+        $primaryRgb         = self::hexToRgb($primary);
+        $primaryHover       = $c['primary_hover'] ?? '#334155';
+        $accent             = $c['accent_color'] ?? '#6366f1';
+        $customCss          = $c['custom_css'] ?? '';
+
+        $mainLogo           = !empty($c['logo_url']) ? $c['logo_url'] : '/plugins/brandkitslater/pics/logo.png';
+        $expandedLogo       = !empty(trim($c['sidebar_logo_url'] ?? '')) ? trim($c['sidebar_logo_url']) : $mainLogo;
+        $collapsedLogo      = !empty(trim($c['collapsed_logo_url'] ?? '')) ? trim($c['collapsed_logo_url']) : '/plugins/brandkitslater/pics/logo_collapsed.svg';
+
+        $sidebarLogoW       = max(50, min(260, (int)($c['sidebar_logo_width'] ?? 145)));
+        $sidebarLogoH       = max(20, min(90, (int)($c['sidebar_logo_height'] ?? 40)));
+        $sidebarLogoShape   = $c['sidebar_logo_shape'] ?? ($c['logo_shape'] ?? 'standard');
+        $sidebarLogoBgPill  = !empty($c['sidebar_logo_bg_pill']);
+
+        $collapsedSize      = max(22, min(56, (int)($c['collapsed_logo_size'] ?? 38)));
+        $collapsedShape     = $c['collapsed_logo_shape'] ?? 'rounded';
+        $logoFit            = $c['logo_fit'] ?? 'contain';
+
+        $expandedShapeCss   = self::buildShapeCss($sidebarLogoShape, $primary, true);
+        $collapsedShapeCss  = self::buildShapeCss($collapsedShape, $primary, true);
+
+        $pillCss = $sidebarLogoBgPill
+            ? "background: rgba(255, 255, 255, 0.94) !important; padding: 5px 10px !important; border-radius: 10px !important; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.16) !important;"
+            : "";
+
+        $cssOutput = "/* BrandKitSlater v2.2 - Native GLPI Integration Layer */\n";
+
+        // =========================================================================
+        // CAMADA 1: MOTOR DUAL DE LOGOTIPO (MENU INTEIRO vs. MENU RECOLHIDO 70PX)
+        // Funciona tanto no Modo Híbrido quanto no Modo Tema Completo (Zero-FOUC)
+        // =========================================================================
+        if ($enableLogos) {
+            $cssOutput .= "
+:root {
+    --glpi-logo: url('{$expandedLogo}') !important;
+    --glpi-logo-reduced: url('{$collapsedLogo}') !important;
+}
+
+/* Container Size-Aware no cabeçalho da barra lateral (Modern Web Guidance: container-type) */
+aside.navbar-vertical .navbar-brand,
+.navbar-vertical .navbar-brand {
+    container-type: inline-size;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0.45rem 0.5rem !important;
+    min-height: 52px !important;
+    text-decoration: none !important;
+    transition: padding 0.2s ease !important;
+}
+
+header.topbar .navbar-brand {
+    display: inline-flex !important;
+    align-items: center !important;
+}
+
+/* Fallback CSS instantâneo antes do JS hidratar as tags <img> */
+.page .navbar-brand:not(:has(.brandkit-sidebar-logo)) .glpi-logo {
+    background-image: url('{$expandedLogo}') !important;
+    background-size: {$logoFit} !important;
+    background-position: center center !important;
+    background-repeat: no-repeat !important;
+    width: {$sidebarLogoW}px !important;
+    height: {$sidebarLogoH}px !important;
+}
+
+body.navbar-collapsed .page .navbar-brand:not(:has(.brandkit-sidebar-logo)) .glpi-logo {
+    background-image: url('{$collapsedLogo}') !important;
+    background-size: {$logoFit} !important;
+    background-position: center center !important;
+    width: {$collapsedSize}px !important;
+    height: {$collapsedSize}px !important;
+    margin: 0 auto !important;
+}
+
+/* Assim que o JS injeta os elementos dedicados, oculta o span legado sem FOUC */
+.navbar-brand:has(.brandkit-sidebar-logo) .glpi-logo {
+    display: none !important;
+}
+
+/* Logo do Menu Inteiro (Expandido / Horizontal) */
+.brandkit-logo-expanded {
+    display: block !important;
+    max-width: {$sidebarLogoW}px !important;
+    max-height: {$sidebarLogoH}px !important;
+    width: auto !important;
+    height: auto !important;
+    object-fit: {$logoFit} !important;
+    margin: 0 auto !important;
+    transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    {$expandedShapeCss}
+    {$pillCss}
+}
+
+/* Ícone do Menu Recolhido (Oculto quando o menu está aberto) */
+.brandkit-logo-collapsed {
+    display: none !important;
+    width: {$collapsedSize}px !important;
+    height: {$collapsedSize}px !important;
+    max-width: {$collapsedSize}px !important;
+    max-height: {$collapsedSize}px !important;
+    object-fit: {$logoFit} !important;
+    margin: 0 auto !important;
+    flex-shrink: 0 !important;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease !important;
+    {$collapsedShapeCss}
+}
+
+.brandkit-logo-collapsed:hover {
+    transform: scale(1.06) !important;
+}
+
+/* Troca automática quando o menu lateral do GLPI está recolhido (70px) */
+body.navbar-collapsed .navbar-vertical .navbar-brand,
+body.menu-collapsed .navbar-vertical .navbar-brand {
+    padding: 0.45rem 0 !important;
+    margin-inline: 0 !important;
+    width: 100% !important;
+    justify-content: center !important;
+}
+
+body.navbar-collapsed .navbar-vertical .brandkit-logo-expanded,
+body.menu-collapsed .navbar-vertical .brandkit-logo-expanded {
+    display: none !important;
+}
+
+body.navbar-collapsed .navbar-vertical .brandkit-logo-collapsed,
+body.menu-collapsed .navbar-vertical .brandkit-logo-collapsed {
+    display: block !important;
+}
+
+/* Container Query de segurança caso a largura útil do navbar-brand fique <= 90px */
+@supports (container-type: inline-size) {
+    @container (max-width: 90px) {
+        .brandkit-logo-expanded {
+            display: none !important;
+        }
+        .brandkit-logo-collapsed {
+            display: block !important;
+        }
+    }
+}
+";
         }
 
-        $primary            = $c['primary_color'] ?? '#003876';
-        $primaryHover       = $c['primary_hover'] ?? '#004ba0';
-        $accent             = $c['accent_color'] ?? '#C0122D';
+        // Se o Tema Interno de Cores estiver desabilitado (Modo Híbrido), encerra aqui mantendo o visual nativo do GLPI!
+        if (!$enableInternal) {
+            return $cssOutput . "\n/* BrandKitSlater: Modo Híbrido ativo (cores nativas do GLPI preservadas). */\n" . $customCss;
+        }
+
+        // =========================================================================
+        // CAMADA 2: TEMA INTERNO COMPLETO E PROFUNDO PARA GLPI 10 & GLPI 11
+        // =========================================================================
         $navbarBg           = $c['navbar_bg'] ?? '#0A1428';
         $navbarTextColor    = $c['navbar_text_color'] ?? '#ffffff';
         $navbarBorderColor  = !empty($c['navbar_border_color']) ? $c['navbar_border_color'] : $accent;
@@ -854,34 +1000,113 @@ body:has(#backup_codes) .card-body::before {
         $sidebarTextColor   = $c['sidebar_text_color'] ?? '#cbd5e1';
         $sidebarActiveColor = $c['sidebar_active_color'] ?? '#38bdf8';
         $sidebarActiveBg    = $c['sidebar_active_bg'] ?? 'rgba(255, 255, 255, 0.08)';
+        $sidebarWidth       = max(200, min(300, (int)($c['sidebar_width'] ?? 240)));
+        $sidebarItemStyle   = $c['sidebar_item_style'] ?? 'pill';
         $bodyBg             = $c['body_bg'] ?? '#f8fafc';
         $cardBg             = $c['card_bg'] ?? '#ffffff';
-        $sidebarLogoW       = (int)($c['sidebar_logo_width'] ?? 140);
-        $sidebarLogoH       = (int)($c['sidebar_logo_height'] ?? 36);
-        $logoShape          = $c['logo_shape'] ?? 'standard';
-        $logoFit            = $c['logo_fit'] ?? 'contain';
+        $uiRadius           = max(0, min(20, (int)($c['ui_border_radius'] ?? 10)));
+        $internalCardStyle  = $c['internal_card_style'] ?? 'elevated';
+        $styleBrowserUi     = !isset($c['style_scrollbars_selection']) || !empty($c['style_scrollbars_selection']);
         $font               = $c['font_family'] ?? 'Plus Jakarta Sans';
-        $customCss          = $c['custom_css'] ?? '';
 
-        $shapeCss = "";
-        if ($logoShape === 'rounded') {
-            $shapeCss = "border-radius: 8px !important;";
-        } elseif ($logoShape === 'circle') {
-            $shapeCss = "border-radius: 50% !important;";
-        } elseif ($logoShape === 'pill') {
-            $shapeCss = "border-radius: 9999px !important;";
-        } elseif ($logoShape === 'bordered') {
-            $shapeCss = "border: 1.5px solid rgba(255, 255, 255, 0.25) !important; padding: 4px !important; border-radius: 8px !important; background: rgba(255,255,255,0.05) !important;";
-        } elseif ($logoShape === 'glow') {
-            $shapeCss = "filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.5)) !important;";
+        // Estilo dos itens do menu quando expandido (sem afetar a área de hover do menu recolhido!)
+        if ($sidebarItemStyle === 'native') {
+            $navItemExpandedCss = "
+body:not(.navbar-collapsed) .navbar-vertical #navbar-menu .nav-item > .nav-link {
+    border-radius: 0 !important;
+    margin: 1px 0 !important;
+    border-left: 3px solid transparent !important;
+}
+body:not(.navbar-collapsed) .navbar-vertical #navbar-menu .nav-item > .nav-link.active,
+body:not(.navbar-collapsed) .navbar-vertical #navbar-menu .nav-item.active > .nav-link {
+    border-left: 3px solid {$sidebarActiveColor} !important;
+}";
+        } elseif ($sidebarItemStyle === 'glass') {
+            $navItemExpandedCss = "
+body:not(.navbar-collapsed) .navbar-vertical #navbar-menu .nav-item > .nav-link {
+    border-radius: {$uiRadius}px !important;
+    margin: 3px 10px !important;
+    padding: 0.5rem 0.9rem !important;
+    border: 1px solid transparent !important;
+}
+body:not(.navbar-collapsed) .navbar-vertical #navbar-menu .nav-item > .nav-link.active,
+body:not(.navbar-collapsed) .navbar-vertical #navbar-menu .nav-item.active > .nav-link {
+    border: 1px solid rgba(255, 255, 255, 0.16) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}";
+        } else {
+            // 'pill' (Padrão Moderno SaaS)
+            $navItemExpandedCss = "
+body:not(.navbar-collapsed) .navbar-vertical #navbar-menu .nav-item > .nav-link {
+    border-radius: {$uiRadius}px !important;
+    margin: 2px 10px !important;
+    padding: 0.48rem 0.95rem !important;
+    border-left: 3px solid transparent !important;
+}
+body:not(.navbar-collapsed) .navbar-vertical #navbar-menu .nav-item > .nav-link.active,
+body:not(.navbar-collapsed) .navbar-vertical #navbar-menu .nav-item.active > .nav-link {
+    border-left: 3px solid {$sidebarActiveColor} !important;
+}";
         }
 
-        return "
-/* BrandKitSlater - Global System Theme */
+        // Estilo dos Cards Internos do GLPI
+        if ($internalCardStyle === 'native') {
+            $internalCardsCss = "
+.page-body .card:not(.brandkit-card) {
+    background-color: {$cardBg};
+    border-radius: {$uiRadius}px;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+}";
+        } elseif ($internalCardStyle === 'accent_top') {
+            $internalCardsCss = "
+.page-body .card:not(.brandkit-card) {
+    background-color: {$cardBg};
+    border-radius: {$uiRadius}px;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    box-shadow: 0 4px 18px -4px rgba(15, 23, 42, 0.06);
+}
+.page-body > main > .card:not(.brandkit-card),
+.page-body .tab-content > .tab-pane > .card:not(.brandkit-card) {
+    border-top: 3px solid {$primary};
+}";
+        } else {
+            // 'elevated'
+            $internalCardsCss = "
+.page-body .card:not(.brandkit-card) {
+    background-color: {$cardBg};
+    border-radius: {$uiRadius}px;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    box-shadow: 0 4px 20px -4px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.03);
+}";
+        }
+
+        $browserUiCss = "";
+        if ($styleBrowserUi) {
+            $browserUiCss = "
+/* Browser-Generated UI Theming (Modern Web Guidance: browser-ui-theming) */
+::selection {
+    background-color: rgba({$primaryRgb}, 0.22);
+    color: inherit;
+}
+
+input[type=\"checkbox\"]:not(.form-check-input),
+input[type=\"radio\"]:not(.form-check-input),
+progress {
+    accent-color: {$primary};
+}
+
+:root {
+    scrollbar-color: rgba(100, 116, 139, 0.55) transparent;
+}
+";
+        }
+
+        $cssOutput .= "
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@400;500;600;700;800&display=swap');
 
 :root {
     --bks-primary: {$primary};
+    --bks-primary-rgb: {$primaryRgb};
     --bks-primary-hover: {$primaryHover};
     --bks-accent: {$accent};
     --bks-navbar-bg: {$navbarBg};
@@ -893,7 +1118,19 @@ body:has(#backup_codes) .card-body::before {
     --bks-sidebar-active-bg: {$sidebarActiveBg};
     --bks-body-bg: {$bodyBg};
     --bks-card-bg: {$cardBg};
+    --bks-radius: {$uiRadius}px;
+
+    /* Variáveis Nativas Oficiais do GLPI 11 & Tabler */
+    --glpi-mainmenu-bg: {$sidebarBg} !important;
+    --glpi-mainmenu-fg: {$sidebarTextColor} !important;
+    --glpi-mainmenu-fg-muted: color-mix(in srgb, {$sidebarTextColor}, transparent 28%) !important;
+    --glpi-mainmenu-active-bg: {$sidebarActiveBg} !important;
+    --glpi-tabs-active-border-color: {$primary} !important;
     --tblr-primary: {$primary} !important;
+    --tblr-primary-rgb: {$primaryRgb} !important;
+    --tblr-link-color: {$primary} !important;
+    --tblr-link-hover-color: {$primaryHover} !important;
+    --tblr-border-radius: {$uiRadius}px !important;
     --tblr-font-sans-serif: '{$font}', -apple-system, BlinkMacSystemFont, sans-serif !important;
 }
 
@@ -902,105 +1139,209 @@ body, .page {
     background-color: {$bodyBg} !important;
 }
 
-/* 1. BARRA SUPERIOR (HEADER NAVBAR) */
-header.navbar, .navbar-expand-md, #header {
+{$browserUiCss}
+
+/* 1. BARRA SUPERIOR (HEADER NAVBAR & TOPBAR) */
+header.navbar,
+header.topbar,
+#header {
     background: {$navbarBg} !important;
     border-bottom: 3px solid {$navbarBorderColor} !important;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10) !important;
 }
 
-/* Textos e ícones na barra superior */
-header.navbar > .container-fluid > .navbar-nav > .nav-item > .nav-link,
-header.navbar > .container-xl > .navbar-nav > .nav-item > .nav-link,
-header.navbar .navbar-nav > .nav-item > .nav-link,
+header.navbar .nav-link,
 header.navbar .navbar-brand,
 header.navbar .nav-link-title,
 header.navbar .nav-link-icon,
-header.navbar > .container-fluid > * > a:not(.dropdown-item),
-header.navbar > .container-xl > * > a:not(.dropdown-item) {
+header.navbar .breadcrumb-item,
+header.navbar .breadcrumb-item a,
+header.navbar .breadcrumb-item.active,
+header.navbar .ti,
+header.navbar .fas,
+header.navbar .far {
     color: {$navbarTextColor} !important;
 }
 
-/* 2. BARRA LATERAL (SIDEBAR VERTICAL) */
+header.navbar .breadcrumb-item + .breadcrumb-item::before {
+    color: color-mix(in srgb, {$navbarTextColor}, transparent 45%) !important;
+}
+
+/* Campo de busca global na barra superior */
+header.navbar .input-icon .form-control,
+header.navbar input[name=\"globalsearch\"] {
+    background: rgba(255, 255, 255, 0.12) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: {$navbarTextColor} !important;
+    border-radius: {$uiRadius}px !important;
+}
+
+header.navbar .input-icon .form-control::placeholder,
+header.navbar input[name=\"globalsearch\"]::placeholder {
+    color: color-mix(in srgb, {$navbarTextColor}, transparent 35%) !important;
+}
+
+header.navbar .input-icon .form-control:focus {
+    background: rgba(255, 255, 255, 0.2) !important;
+    border-color: {$sidebarActiveColor} !important;
+    box-shadow: 0 0 0 3px rgba({$primaryRgb}, 0.25) !important;
+}
+
+/* 2. BARRA LATERAL (SIDEBAR VERTICAL EXPANDIDA & RECOLHIDA 70PX) */
+aside.sidebar,
 .navbar-vertical,
-aside.navbar-vertical,
-.navbar-vertical.navbar-expand-lg {
+aside.navbar-vertical {
     background: {$sidebarBg} !important;
-    border-right: 1px solid rgba(0, 0, 0, 0.12) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
 }
 
-.navbar-vertical .nav-link {
+@media (min-width: 992px) {
+    body.vertical-layout:not(.navbar-collapsed) aside.sidebar {
+        width: {$sidebarWidth}px !important;
+    }
+
+    body.vertical-layout:not(.navbar-collapsed) aside.sidebar ~ .page-wrapper,
+    body.vertical-layout:not(.navbar-collapsed) aside.sidebar ~ header.navbar {
+        margin-inline-start: {$sidebarWidth}px !important;
+    }
+
+    body.vertical-layout.navbar-collapsed aside.sidebar {
+        width: 70px !important;
+    }
+
+    body.vertical-layout.navbar-collapsed aside.sidebar ~ .page-wrapper,
+    body.vertical-layout.navbar-collapsed aside.sidebar ~ header.navbar {
+        margin-inline-start: 70px !important;
+    }
+}
+
+.navbar-vertical #navbar-menu .nav-item > .nav-link {
     color: {$sidebarTextColor} !important;
-    border-radius: 8px !important;
-    margin: 2px 8px !important;
-    transition: all 0.2s ease !important;
+    transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease !important;
 }
 
-.navbar-vertical .nav-link:hover {
+.navbar-vertical #navbar-menu .nav-item > .nav-link:hover {
     color: #ffffff !important;
-    background: rgba(255, 255, 255, 0.08) !important;
+    background: rgba(255, 255, 255, 0.09) !important;
 }
 
-.navbar-vertical .nav-link.active,
-.navbar-vertical .nav-item.active > .nav-link {
+.navbar-vertical #navbar-menu .nav-item > .nav-link.active,
+.navbar-vertical #navbar-menu .nav-item.active > .nav-link,
+.navbar-vertical #navbar-menu .nav-item > .nav-link.show {
     color: {$sidebarActiveColor} !important;
     background: {$sidebarActiveBg} !important;
-    border-left: 4px solid {$sidebarActiveColor} !important;
     font-weight: 700 !important;
 }
 
-/* Logotipo Customizado na Barra Lateral */
-.brandkit-sidebar-logo {
-    max-width: {$sidebarLogoW}px !important;
-    max-height: {$sidebarLogoH}px !important;
-    object-fit: {$logoFit} !important;
+{$navItemExpandedCss}
+
+/* Botões utilitários da Sidebar: 'Encontrar um menu' (.trigger-fuzzy) e 'Recolher menu' (.reduce-menu) */
+.navbar-vertical .trigger-fuzzy,
+.navbar-vertical .reduce-menu {
+    color: {$sidebarTextColor} !important;
+    border-radius: 8px !important;
     transition: all 0.2s ease !important;
-    {$shapeCss}
 }
 
-/* 3. MENUS SUSPENSOS E DROPDOWNS */
-.dropdown-menu,
+.navbar-vertical .trigger-fuzzy:hover,
+.navbar-vertical .reduce-menu:hover {
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Submenus internos abertos na sidebar expandida */
+body:not(.navbar-collapsed) .sidebar #navbar-menu .nav-item .nav-link + .dropdown-menu {
+    background-color: rgba(0, 0, 0, 0.18) !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0.25rem 0 !important;
+}
+
+body:not(.navbar-collapsed) .sidebar #navbar-menu .nav-item .dropdown-menu .dropdown-item {
+    color: {$sidebarTextColor} !important;
+    font-size: 0.85rem !important;
+    padding: 0.42rem 1rem 0.42rem 2.25rem !important;
+    border-radius: 0 !important;
+}
+
+body:not(.navbar-collapsed) .sidebar #navbar-menu .nav-item .dropdown-menu .dropdown-item:hover,
+body:not(.navbar-collapsed) .sidebar #navbar-menu .nav-item .dropdown-menu .dropdown-item.active {
+    color: {$sidebarActiveColor} !important;
+    background: rgba(255, 255, 255, 0.07) !important;
+}
+
+/* Flyout flutuante quando a Sidebar está RECOLHIDA (70px) - sem gap de hover! */
+body.navbar-collapsed .sidebar #navbar-menu .nav-item > .nav-link {
+    margin: 0 !important;
+    border-radius: 0 !important;
+    justify-content: center !important;
+    padding: 0.65rem 0 !important;
+}
+
+body.navbar-collapsed .sidebar #navbar-menu .nav-item > .nav-link i,
+body.navbar-collapsed .sidebar #navbar-menu .nav-item > .nav-link .nav-link-icon {
+    margin: 0 !important;
+    font-size: 1.15rem !important;
+}
+
+body.navbar-collapsed .sidebar #navbar-menu .nav-item .nav-link + .dropdown-menu {
+    background-color: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 0 {$uiRadius}px {$uiRadius}px 0 !important;
+    box-shadow: 0 16px 32px -6px rgba(15, 23, 42, 0.22) !important;
+    padding: 0.5rem !important;
+    min-width: 210px !important;
+}
+
+body.navbar-collapsed .sidebar #navbar-menu .nav-item .dropdown-menu .dropdown-header {
+    color: {$primary} !important;
+    font-weight: 800 !important;
+    font-size: 0.75rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.04em !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    margin-bottom: 0.25rem !important;
+}
+
+body.navbar-collapsed .sidebar #navbar-menu .nav-item .dropdown-menu .dropdown-item {
+    color: #1e293b !important;
+    border-radius: 6px !important;
+    padding: 0.45rem 0.75rem !important;
+    font-weight: 500 !important;
+}
+
+body.navbar-collapsed .sidebar #navbar-menu .nav-item .dropdown-menu .dropdown-item:hover,
+body.navbar-collapsed .sidebar #navbar-menu .nav-item .dropdown-menu .dropdown-item.active {
+    color: {$primary} !important;
+    background-color: rgba({$primaryRgb}, 0.08) !important;
+}
+
+/* 3. MENUS SUSPENSOS DA NAVBAR SUPERIOR */
 header.navbar .dropdown-menu {
     background-color: #ffffff !important;
     border: 1px solid #e2e8f0 !important;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
-    border-radius: 10px !important;
-    padding: 0.5rem !important;
+    box-shadow: 0 12px 28px -5px rgba(15, 23, 42, 0.16) !important;
+    border-radius: {$uiRadius}px !important;
+    padding: 0.45rem !important;
 }
 
-.dropdown-menu a,
-.dropdown-menu .dropdown-item,
-header.navbar .dropdown-menu a,
-header.navbar .dropdown-menu .dropdown-item,
-header.navbar .dropdown-item,
-header.navbar .dropdown-header {
+header.navbar .dropdown-menu .dropdown-item {
     color: #1e293b !important;
     font-weight: 500 !important;
     font-size: 0.875rem !important;
     border-radius: 6px !important;
-    padding: 0.5rem 0.85rem !important;
-    transition: all 0.15s ease !important;
-    display: flex !important;
-    align-items: center !important;
+    padding: 0.48rem 0.85rem !important;
 }
 
-.dropdown-menu .dropdown-item:hover,
-header.navbar .dropdown-menu .dropdown-item:hover,
-.dropdown-menu a:hover {
+header.navbar .dropdown-menu .dropdown-item:hover {
     color: {$primary} !important;
     background-color: #f1f5f9 !important;
 }
 
-.dropdown-menu .dropdown-item.active,
-header.navbar .dropdown-menu .dropdown-item.active {
-    color: #ffffff !important;
-    background-color: {$primary} !important;
-}
+/* 4. SUPERFÍCIES, CARTÕES E BOTÕES DO GLPI */
+{$internalCardsCss}
 
-/* 4. BOTÕES PRIMÁRIOS E AÇÕES */
 .btn-primary,
-.btn-primary:link,
-.btn-primary:visited,
 button.btn-primary,
 a.btn-primary,
 input[type=\"submit\"].btn-primary {
@@ -1010,61 +1351,46 @@ input[type=\"submit\"].btn-primary {
     background-color: {$primary} !important;
     border-color: {$primary} !important;
     color: #ffffff !important;
-    border-radius: 8px !important;
+    border-radius: {$uiRadius}px !important;
     font-weight: 600 !important;
-    transition: all 0.2s ease !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
 .btn-primary:hover,
 .btn-primary:focus,
-.btn-primary:active,
-.btn-primary.active {
-    --tblr-btn-hover-color: #ffffff !important;
+.btn-primary:active {
     background-color: {$primaryHover} !important;
     border-color: {$primaryHover} !important;
     color: #ffffff !important;
     transform: translateY(-1px) !important;
 }
 
-.btn-primary *,
-.btn-primary i,
-.btn-primary svg,
-.btn-primary span {
-    color: #ffffff !important;
-    fill: #ffffff !important;
-}
-
-/* Botões com Outline Primário */
 .btn-outline-primary {
     color: {$primary} !important;
     border-color: {$primary} !important;
+    border-radius: {$uiRadius}px !important;
 }
 
-.btn-outline-primary:hover,
-.btn-outline-primary:focus,
-.btn-outline-primary:active {
+.btn-outline-primary:hover {
     background-color: {$primary} !important;
     border-color: {$primary} !important;
     color: #ffffff !important;
 }
 
-/* Badges e Destaques */
-.badge.bg-primary {
+.form-check-input:checked {
     background-color: {$primary} !important;
+    border-color: {$primary} !important;
 }
 
-.badge.bg-danger {
-    background-color: {$accent} !important;
-}
-
-/* Cards do Sistema */
-.card, .card-md {
-    background-color: {$cardBg} !important;
-    border-radius: 12px !important;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1) !important;
+.nav-tabs .nav-link.active {
+    border-bottom-color: {$primary} !important;
+    color: {$primary} !important;
+    font-weight: 700 !important;
 }
 
 {$customCss}
 ";
+
+        return $cssOutput;
     }
 }
